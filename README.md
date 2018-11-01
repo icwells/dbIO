@@ -59,11 +59,10 @@ text file (for initializing a new database), but it may be updated to read from 
 This command will read a text file of tables, columns, and types and initialize new tables if they do not already exist.  
 
 The input file should be in the following format:  
-```
- # TableName  
-ID INT PRIMARY KEY  
-Name TEXT
-```  
+
+	# TableName  
+	ID INT PRIMARY KEY  
+	Name TEXT 
 
 Table names should be preceded with a pound sign. Column names should be the first element of the line and must be 
 followed by the column type. Any valid MySQL key words for column creation (UNIQUE, PRIMARY KEY, ...) may follow the type.  
