@@ -6,33 +6,46 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/Songmu/prompter"
+	_ "github.com/go-sql-driver/mysql"
 	"os"
 	"strings"
 	"time"
 )
 
-func Connect(database, user string) (*sql.DB, string, time.Time) {
-	// Attempts to connect to sql database. Returns db instance.
-	// Prompt for password
-	pw := prompter.Password("\n\tEnter MySQL password")
-	// Begin recording time after password input
-	start := time.Now()
-	db, err := sql.Open("mysql", user+":"+pw+"@/"+database)
-	if err != nil {
-		fmt.Printf("\n\t[Error] Connecting to database: %v", err)
-		os.Exit(1000)
-	}
-	if err = db.Ping(); err != nil {
-		fmt.Printf("\n\t[Error] Cannot connect to database: %v", err)
-	}
-	return db, pw, start
+type DBIO struct {
+	DB        *sql.DB
+	Database  string
+	User      string
+	password  string
+	Starttime time.Time
+	Columns   map[string]string
 }
 
-func TruncateTable(db *sql.DB, table string) {
+func Connect(database, user string) *DBIO {
+	// Attempts to connect to sql database. Returns dbio instance.
+	var err error
+	d := new(DBIO)
+	d.Database = database
+	d.User = user
+	// Prompt for password
+	d.password = prompter.Password("\n\tEnter MySQL password")
+	// Begin recording time after password input
+	d.Starttime = time.Now()
+	d.DB, err = sql.Open("mysql", d.User+":"+d.password+"@/"+d.Database)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Check database name and password: %v", err)
+		os.Exit(1000)
+	}
+	if err = d.DB.Ping(); err != nil {
+		fmt.Printf("\n\t[Error] Cannot connect to database: %v", err)
+	}
+	return d
+}
+
+func (d *DBIO) TruncateTable(table string) {
 	// Clears all table contents
-	cmd, err := db.Prepare(fmt.Sprintf("TRUNCATE TABLE %s;", table))
+	cmd, err := d.DB.Prepare(fmt.Sprintf("TRUNCATE TABLE %s;", table))
 	if err != nil {
 		fmt.Printf("\t[Error] Formatting command to truncate table %s: %v\n", table, err)
 	} else {
@@ -68,12 +81,12 @@ func columnEqualTo(columns string, values [][]string) []string {
 	return ret
 }
 
-func UpdateRow(db *sql.DB, table, columns, target, key string, values [][]string) int {
+func (d *DBIO) UpdateRow(table, target, key string, values [][]string) int {
 	// Updates rows where target = key with values (matched to columns)
 	ret := 0
-	val := columnEqualTo(columns, values)
+	val := columnEqualTo(d.Columns[table], values)
 	for _, i := range val {
-		cmd, err := db.Prepare(fmt.Sprintf("UPDATE %s SET %s WHERE %s = %s;", table, i, target, key))
+		cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s WHERE %s = %s;", table, i, target, key))
 		if err != nil {
 			fmt.Printf("\t[Error] Preparing update for %s: %v\n", table, err)
 		} else {
@@ -89,9 +102,9 @@ func UpdateRow(db *sql.DB, table, columns, target, key string, values [][]string
 	return ret
 }
 
-func DeleteRow(db *sql.DB, table, column, value string) {
+func (d *DBIO) DeleteRow(table, column, value string) {
 	// Deletes row(s) from database where column name = given value
-	cmd, err := db.Prepare(fmt.Sprintf("DELETE FROM %s WHERE %s = '%s';", table, column, value))
+	cmd, err := d.DB.Prepare(fmt.Sprintf("DELETE FROM %s WHERE %s = '%s';", table, column, value))
 	if err != nil {
 		fmt.Printf("\t[Error] Preparing deletion from %s: %v\n", table, err)
 	} else {

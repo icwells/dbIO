@@ -5,18 +5,16 @@ package dbIO
 import (
 	"bufio"
 	"bytes"
-	"database/sql"
 	"fmt"
 	"github.com/icwells/go-tools/iotools"
-	"github.com/icwells/go-tools/strarray"
 	"os"
 	"strings"
 )
 
-func UpdateDB(db *sql.DB, table, columns, values string, l int) int {
+func (d *DBIO) UpdateDB(table, values string, l int) int {
 	// Adds new rows to table
 	//(values must be formatted for single/multiple rows before calling function)
-	cmd, err := db.Prepare(fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, columns, values))
+	cmd, err := d.DB.Prepare(fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, d.Columns[table], values))
 	if err != nil {
 		fmt.Printf("\t[Error] Formatting command for upload to %s: %v\n", table, err)
 		return 0
@@ -112,9 +110,9 @@ func FormatSlice(data [][]string) (string, int) {
 	return buffer.String(), count
 }
 
-func ReadColumns(infile string, types bool) map[string]string {
+func (d *DBIO) ReadColumns(infile string, types bool) {
 	// Build map of column statements
-	columns := make(map[string]string)
+	d.Columns = make(map[string]string)
 	var table string
 	f := iotools.OpenFile(infile)
 	defer f.Close()
@@ -134,24 +132,23 @@ func ReadColumns(infile string, types bool) map[string]string {
 					c := strings.Split(line, " ")
 					col = strings.TrimSpace(c[0])
 				}
-				if strarray.InMapStr(columns, table) == true {
-					columns[table] = columns[table] + ", " + col
+				if _, ex := d.Columns[table]; ex == true {
+					d.Columns[table] = d.Columns[table] + ", " + col
 				} else {
-					columns[table] = col
+					d.Columns[table] = col
 				}
 			}
 		}
 	}
-	return columns
 }
 
-func NewTables(db *sql.DB, infile string) {
+func (d *DBIO) NewTables(infile string) {
 	// Initializes new tables
 	fmt.Println("\n\tInitializing new tables...")
-	columns := ReadColumns(infile, true)
-	for k, v := range columns {
+	d.ReadColumns(infile, true)
+	for k, v := range d.Columns {
 		cmd := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s(%s);", k, v)
-		_, err := db.Exec(cmd)
+		_, err := d.DB.Exec(cmd)
 		if err != nil {
 			fmt.Printf("\t[Error] Creating table %s. %v\n\n", k, err)
 			os.Exit(1)
