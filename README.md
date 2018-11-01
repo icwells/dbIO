@@ -7,7 +7,7 @@ Copyright 2018 by Shawn Rupp
 2. [Usage](#usage)  
 3. [Uploading](#uploading-to-a-database)  
 4. [Extracting](#extracting-from-a-database)  
-5. [Update/Delete](#update/delete)
+5. [Update/Delete](#update-delete)
 
 ## Dependencies:  
 
