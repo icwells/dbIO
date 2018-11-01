@@ -44,12 +44,12 @@ Returns a DBIO instance containing:
 DB        *sql.DB  
 Database  string  
 User      string  
-password  string  
+Password  string  
 Starttime time.Time  
 Columns   map[string]string  
 ```
 DB is the database connection, while database stores the database name. User is the user name, and Starttime 
-is the time point after the password is given (while the password is stored, it is not exported). Lastly, columns 
+is the time point after the password is given. Lastly, columns 
 stores a map with a comma-seperated string of column name for each table. This map is currently read in from a 
 text file (for initializing a new database), but it may be updated to read from the database in the future.  
 

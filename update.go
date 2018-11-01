@@ -17,7 +17,7 @@ type DBIO struct {
 	DB        *sql.DB
 	Database  string
 	User      string
-	password  string
+	Password  string
 	Starttime time.Time
 	Columns   map[string]string
 }
@@ -29,10 +29,10 @@ func Connect(database, user string) *DBIO {
 	d.Database = database
 	d.User = user
 	// Prompt for password
-	d.password = prompter.Password("\n\tEnter MySQL password")
+	d.Password = prompter.Password("\n\tEnter MySQL password")
 	// Begin recording time after password input
 	d.Starttime = time.Now()
-	d.DB, err = sql.Open("mysql", d.User+":"+d.password+"@/"+d.Database)
+	d.DB, err = sql.Open("mysql", d.User+":"+d.Password+"@/"+d.Database)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Check database name and password: %v", err)
 		os.Exit(1000)
