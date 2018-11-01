@@ -56,7 +56,7 @@ This command will read a text file of tables, columns, and types and initialize 
 
 The input file should be in the following format:  
 ```
-'#' TableName  
+\# TableName  
 ID INT PRIMARY KEY  
 Name TEXT
 ```  
@@ -95,7 +95,7 @@ It returns an integer (rather than a boolean) so multiple results can be tallied
 #### DBIO.GetTable(table string) [][]string  
 Returns contents of a given table as a slice of string slices.  
 
-#### DBIO.GetTableMap(table string) map[string][]string {
+#### DBIO.GetTableMap(table string) map[string][]string  
 Returns contents of a given table as a map with the first column as the key.  
 
 #### DBIO.GetNumOccurances(table, column string) map[string]int  
@@ -124,3 +124,15 @@ Returns maximum number froma  given column.
 
 #### DBIO.GetCount(table string) int  
 Returns number of rows from a table.  
+
+### Update/Delete  
+
+#### DBIO.UpdateRow(table, target, key string, values [][]string) int 
+Updates rows where target == key with given values (automatically matched to columns). 
+Returns number of rows updated.  
+
+#### DBIO.DeleteRow(table, column, value string)  
+Deletes row(s) from database where column name == given value.  
+
+#### DBIO.TruncateTable(table string)  
+Clears all table contents (for re-creating summary tables....).  
