@@ -3,6 +3,12 @@ This script is still (somewhat) under developement, but is more or less ready fo
 
 Copyright 2018 by Shawn Rupp
 
+1. [Dependencies](#dependencies)  
+2. [Usage](#usage)  
+3. [Uploading](#uploading-to-a-database)  
+4. [Extracting](#extracting-from-a-database)  
+5. [Update/Delete](#update/delete)
+
 ## Dependencies:  
 
 ### Prompter  
@@ -49,7 +55,7 @@ is the time point after the password is given (while the password is stored, it 
 stores a map with a comma-seperated string of column name for each table. This map is currently read in from a 
 text file (for initializing a new database), but it may be updated to read from the database in the future.  
 
-### Uploading to a Database 
+### Uploading to a database 
 
 #### DBIO.NewTables(infile string)  
 This command will read a text file of tables, columns, and types and initialize new tables if they do not already exist.  
