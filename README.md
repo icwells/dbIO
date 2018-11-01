@@ -7,7 +7,7 @@ Copyright 2018 by Shawn Rupp
 2. [Usage](#usage)  
 3. [Uploading](#uploading-to-a-database)  
 4. [Extracting](#extracting-from-a-database)  
-5. [Update/Delete](#update-delete)
+5. [Update/Delete](#updating-and-deleting)
 
 ## Dependencies:  
 
@@ -131,7 +131,7 @@ Returns maximum number froma  given column.
 #### DBIO.GetCount(table string) int  
 Returns number of rows from a table.  
 
-### Update/Delete  
+### Updating and deleting  
 
 #### DBIO.UpdateRow(table, target, key string, values [][]string) int 
 Updates rows where target == key with given values (automatically matched to columns). 
