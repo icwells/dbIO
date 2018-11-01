@@ -128,7 +128,7 @@ Returns maximum number froma  given column.
 #### DBIO.GetCount(table string) int  
 Returns number of rows from a table.  
 
-### U and deleting  
+### Updating and deleting  
 
 #### DBIO.UpdateRow(table, target, key string, values [][]string) int 
 Updates rows where target == key with given values (automatically matched to columns). 
