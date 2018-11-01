@@ -40,7 +40,6 @@ Attempts to connect to given sql database with given user name. It will prompt f
 the user before storing the start time (for recording program run time).  
 
 Returns a DBIO instance containing:  
-
 ```
 DB        *sql.DB  
 Database  string  
@@ -49,7 +48,6 @@ password  string
 Starttime time.Time  
 Columns   map[string]string  
 ```
-
 DB is the database connection, while database stores the database name. User is the user name, and Starttime 
 is the time point after the password is given (while the password is stored, it is not exported). Lastly, columns 
 stores a map with a comma-seperated string of column name for each table. This map is currently read in from a 
@@ -62,7 +60,7 @@ This command will read a text file of tables, columns, and types and initialize 
 
 The input file should be in the following format:  
 ```
-\# TableName  
+ # TableName  
 ID INT PRIMARY KEY  
 Name TEXT
 ```  
@@ -131,7 +129,7 @@ Returns maximum number froma  given column.
 #### DBIO.GetCount(table string) int  
 Returns number of rows from a table.  
 
-### Updating and deleting  
+### U and deleting  
 
 #### DBIO.UpdateRow(table, target, key string, values [][]string) int 
 Updates rows where target == key with given values (automatically matched to columns). 
