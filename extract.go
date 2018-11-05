@@ -62,6 +62,18 @@ func toSlice(rows *sql.Rows) [][]string {
 	return ret
 }
 
+func (d *DBIO) GetRowsMin(table, column, target string, min int) [][]string {
+	// Returns rows of target columns with column >= key
+	var cmd string
+	cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s >= %d;", target, table, column, min)
+	rows, err := d.DB.Query(cmd)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
+	}
+	defer rows.Close()
+	return toSlice(rows)
+}
+
 func addApprostrophes(key string) string {
 	// Wraps terms in apostrophes to avoid errors
 	s := strings.Split(key, ",")
@@ -76,18 +88,6 @@ func addApprostrophes(key string) string {
 		buffer.WriteByte('\'')
 	}
 	return buffer.String()
-}
-
-func (d *DBIO) GetRowsMin(table, column, target string, min int) [][]string {
-	// Returns rows of target columns with column >= key
-	var cmd string
-	cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s >= %d;", target, table, column, min)
-	rows, err := d.DB.Query(cmd)
-	if err != nil {
-		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
-	}
-	defer rows.Close()
-	return toSlice(rows)
 }
 
 func (d *DBIO) GetRows(table, column, key, target string) [][]string {

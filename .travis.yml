@@ -1,0 +1,13 @@
+language: go
+
+go: "1.10.x"
+
+sudo: false
+
+before_script:
+	- go fmt *.go
+	- go vet *.go
+
+script:
+	- go test -v *.go
+

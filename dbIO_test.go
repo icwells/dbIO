@@ -33,3 +33,19 @@ func TestColumnEqualTo(t *testing.T) {
 		}
 	}
 }
+
+/*func TestEscapeChars(t *testing.T) {
+
+}
+
+func TestFormatMap(t *testing.T) {
+
+}
+
+func TestFormatSlice(t *testing.T) {
+
+}
+
+func TestAddApostrophes(t *testing.T) {
+	
+}*/
