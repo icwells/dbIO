@@ -28,13 +28,15 @@ func Connect(database, user string) *DBIO {
 	d := new(DBIO)
 	d.Database = database
 	d.User = user
-	// Prompt for password
-	d.Password = prompter.Password("\n\tEnter MySQL password")
+	if d.User != "guest" {
+		// Prompt for password
+		d.Password = prompter.Password("\n\tEnter MySQL password")
+	}
 	// Begin recording time after password input
 	d.Starttime = time.Now()
 	d.DB, err = sql.Open("mysql", d.User+":"+d.Password+"@/"+d.Database)
 	if err != nil {
-		fmt.Printf("\n\t[Error] Check database name and password: %v", err)
+		fmt.Printf("\n\t[Error] Incorrect username or password: %v", err)
 		os.Exit(1000)
 	}
 	if err = d.DB.Ping(); err != nil {
