@@ -64,6 +64,7 @@ func columnEqualTo(columns string, values [][]string) []string {
 	col := strings.Split(columns, ",")
 	for _, val := range values {
 		if len(val) == len(col) {
+			// Concatenate string for each row
 			first := true
 			buffer := bytes.NewBufferString("")
 			for idx, i := range val {
@@ -71,11 +72,15 @@ func columnEqualTo(columns string, values [][]string) []string {
 					// Write seperating comma
 					buffer.WriteByte(',')
 				}
-				buffer.WriteString(col[idx])
-				buffer.WriteByte('=')
-				buffer.WriteByte('\'')
-				buffer.WriteString(i)
-				buffer.WriteByte('\'')
+				if len(i) >= 1 {
+					// Leave empty fields unchanged
+					buffer.WriteString(col[idx])
+					buffer.WriteByte('=')
+					buffer.WriteByte('\'')
+					buffer.WriteString(i)
+					buffer.WriteByte('\'')
+					first = false
+				}
 			}
 			ret = append(ret, buffer.String())
 		}
