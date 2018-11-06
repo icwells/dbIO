@@ -29,11 +29,11 @@ func (d *DBIO) UpdateDB(table, values string, l int) int {
 }
 
 func escapeChars(v string) string {
-	// Returns value with any reserved characters escaped and NAs converted to Null
+	// Returns value with any reserved characters escaped and standarizes NAs
 	chars := []string{"'", "\"", "_"}
-	na := []string{"Na", "N/A"}
-	// Reset semicolons to commas
-	v = strings.Replace(v, "\\", "-", -1)
+	na := []string{"na", "Na", "N/A"}
+	// Reset backslashes to dashes
+	v = strings.Replace(v, `\`, "-", -1)
 	for _, i := range na {
 		// Standardize NA values
 		if v == i {
@@ -46,7 +46,7 @@ func escapeChars(v string) string {
 			// Escape each occurance of a character
 			ind := strings.Index(v[idx:], i)
 			idx = idx + ind
-			v = v[:idx] + "\\" + v[idx:]
+			v = v[:idx] + `\` + v[idx:]
 			idx++
 			idx++
 		}

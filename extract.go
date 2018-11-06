@@ -74,7 +74,7 @@ func (d *DBIO) GetRowsMin(table, column, target string, min int) [][]string {
 	return toSlice(rows)
 }
 
-func addApprostrophes(key string) string {
+func addApostrophes(key string) string {
 	// Wraps terms in apostrophes to avoid errors
 	s := strings.Split(key, ",")
 	buffer := bytes.NewBufferString("")
@@ -96,7 +96,7 @@ func (d *DBIO) GetRows(table, column, key, target string) [][]string {
 	if strings.Contains(key, ",") == true {
 		// Format for list
 		if strings.Contains(key, "'") == false {
-			key = addApprostrophes(key)
+			key = addApostrophes(key)
 		}
 		cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s IN (%s);", target, table, column, key)
 	} else {
