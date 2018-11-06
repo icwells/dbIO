@@ -2,9 +2,7 @@ language: go
 
 go: "1.10.x"
 
-sudo: false
-
-before_install:
+before_script:
 	- go get -t github.com/Songmu/prompter
 	- go get -t github.com/icwells/iotools
 
