@@ -6,7 +6,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/icwells/go-tools/iotools"
 	"os"
 	"strings"
 )
@@ -110,11 +109,21 @@ func FormatSlice(data [][]string) (string, int) {
 	return buffer.String(), count
 }
 
+func openFile(file string) *os.File {
+	// Returns file stream, exits if it encounters an error
+	f, err := os.Open(file)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "\n\t[ERROR] Reading %s: %v\n\n", file, err)
+		os.Exit(10)
+	}
+	return f
+}
+
 func (d *DBIO) ReadColumns(infile string, types bool) {
 	// Build map of column statements
 	d.Columns = make(map[string]string)
 	var table string
-	f := iotools.OpenFile(infile)
+	f := openFile(infile)
 	defer f.Close()
 	input := bufio.NewScanner(f)
 	for input.Scan() {
