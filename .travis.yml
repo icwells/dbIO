@@ -6,4 +6,4 @@ sudo: false
 
 before_script:  go get -t github.com/Songmu/prompter
 
-script: go test -v ./..
+script: go test -v *.go
