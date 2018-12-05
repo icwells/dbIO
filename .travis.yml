@@ -1,8 +1,6 @@
 language: go
 
-go: "1.10.x"
-
-sudo: false
+go: "1.10."
 
 before_script:  go get -t github.com/Songmu/prompter
 
