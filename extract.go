@@ -9,22 +9,45 @@ import (
 	"strings"
 )
 
-func (d *DBIO) GetCount(table string) int {
-	// Returns number of rows from table
+func (d *DBIO) getCount(table, cmd string) int {
+	// Returns integer from query
 	var n int
-	cmd := fmt.Sprintf("SELECT COUNT(*) FROM %s;", table)
 	val := d.DB.QueryRow(cmd)
 	err := val.Scan(&n)
 	if err != nil {
-		fmt.Printf("\n\t[Error] Determining number of rows from %s: %v\n\n", table, err)
+		fmt.Printf("\n\t[Error] Counting entries from %s: %v\n\n", table, err)
 	}
 	return n
+}
+
+func (d *DBIO) Count(table, column, op, key, target string, distinct bool) int {
+	// Returns count of entries from table column where key relates to target via op (>=/=/...)
+	var cmd string
+	if distinct == true {
+		cmd = fmt.Sprintf("SELECT COUNT(DISTINCT %s) FROM %s", column, table)
+	} else {
+		cmd = fmt.Sprintf("SELECT COUNT(%s) FROM %s", column, table)
+	}
+	if len(op) >= 1 && len(key) >= 1 && len(target) >= 1 {
+		// Add evaluation statement
+		cmd += fmt.Sprintf(" WHERE %s %s %s", target, op, key)
+	} else if len(op) >= 1 || len(key) >= 1 || len(target) >= 1 {
+		fmt.Print("\n\t[Error] Please specify target column, operator, and target value. Returning -1.\n")
+		return -1
+	}
+	return d.getCount(table, cmd)
+}
+
+func (d *DBIO) CountRows(table string) int {
+	// Returns number of rows from table
+	cmd := fmt.Sprintf("SELECT COUNT(*) FROM %s;", table)
+	return d.getCount(table, cmd)
 }
 
 func (d *DBIO) GetMax(table, column string) int {
 	// Returns maximum number from given column
 	var m int
-	n := d.GetCount(table)
+	n := d.CountRows(table)
 	if n > 0 {
 		cmd := fmt.Sprintf("SELECT MAX(%s) FROM %s;", column, table)
 		val := d.DB.QueryRow(cmd)

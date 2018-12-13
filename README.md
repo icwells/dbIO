@@ -125,8 +125,13 @@ Returns rows of target columns where column is greater than or equal to key.
 #### DBIO.GetMax(table, column string) int  
 Returns maximum number from a given column.  
 
-#### DBIO.GetCount(table string) int  
+#### DBIO.CountRows(table string) int  
 Returns number of rows from a table.  
+
+#### DBIO.Count(table, column, op, key, target string, distinct bool) int {
+Returns count of entries from column in table where key relates to target via op (>=/=/...).  
+Returns total if distinct is false; returns number of unique entries if distinct is true.  
+Give operator, key, and target as emtpy strings to count without evaluating.  
 
 ### Updating and deleting  
 
