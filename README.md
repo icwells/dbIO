@@ -123,7 +123,7 @@ Returns rows of target columns where key relates to column via given operator (>
 Returns rows of target columns where column is greater than or equal to key.  
 
 #### DBIO.GetMax(table, column string) int  
-Returns maximum number froma  given column.  
+Returns maximum number from a given column.  
 
 #### DBIO.GetCount(table string) int  
 Returns number of rows from a table.  
