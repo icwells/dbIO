@@ -117,10 +117,10 @@ Returns an integer slice of all entries in column.
 Returns rows of target columns with key in column. Use "*" for target to select entire row.  
 
 #### DBIOEvaluateRows(table, column, op, key, target string) [][]string  
-Returns rows of target columns where key relates to column via given operator (>=/=/...).  
+Returns rows of target column(s) where key relates to column via given operator (>=/=/...; ie. column >= 7).  
 
 #### DBIO.GetRowsMin(table, column, target string, min int) [][]string  
-Returns rows of target columns where column is greater than or equal to key.  
+Returns rows of target column(s) where column is greater than or equal to key.  
 
 #### DBIO.GetMax(table, column string) int  
 Returns maximum number from a given column.  
@@ -129,7 +129,7 @@ Returns maximum number from a given column.
 Returns number of rows from a table.  
 
 #### DBIO.Count(table, column, op, key, target string, distinct bool) int {
-Returns count of entries from column in table where key relates to target via op (>=/=/...).  
+Returns count of entries from target column(s) in table where key relates to column via op (>=/=/...; ie. column >= 7).  
 Returns total if distinct is false; returns number of unique entries if distinct is true.  
 Give operator, key, and target as emtpy strings to count without evaluating.  
 

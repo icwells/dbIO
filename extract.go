@@ -20,18 +20,18 @@ func (d *DBIO) getCount(table, cmd string) int {
 	return n
 }
 
-func (d *DBIO) Count(table, column, op, key, target string, distinct bool) int {
+func (d *DBIO) Count(table, column, target, op, key string, distinct bool) int {
 	// Returns count of entries from table column where key relates to target via op (>=/=/...)
 	var cmd string
 	if distinct == true {
-		cmd = fmt.Sprintf("SELECT COUNT(DISTINCT %s) FROM %s", column, table)
+		cmd = fmt.Sprintf("SELECT COUNT(DISTINCT %s) FROM %s", target, table)
 	} else {
-		cmd = fmt.Sprintf("SELECT COUNT(%s) FROM %s", column, table)
+		cmd = fmt.Sprintf("SELECT COUNT(%s) FROM %s", target, table)
 	}
-	if len(op) >= 1 && len(key) >= 1 && len(target) >= 1 {
+	if len(op) >= 1 && len(key) >= 1 && len(column) >= 1 {
 		// Add evaluation statement
-		cmd += fmt.Sprintf(" WHERE %s %s %s", target, op, key)
-	} else if len(op) >= 1 || len(key) >= 1 || len(target) >= 1 {
+		cmd += fmt.Sprintf(" WHERE %s %s %s", column, op, key)
+	} else if len(op) >= 1 || len(key) >= 1 || len(column) >= 1 {
 		fmt.Print("\n\t[Error] Please specify target column, operator, and target value. Returning -1.\n")
 		return -1
 	}
@@ -133,9 +133,9 @@ func (d *DBIO) GetRows(table, column, key, target string) [][]string {
 	return toSlice(rows)
 }
 
-func (d *DBIO) EvaluateRows(table, column, op, key, target string) [][]string {
-	// Returns rows of target columns where key relates to column via op (>=/=/...)
-	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE %s %s '%s';", target, table, column, op, key)
+func (d *DBIO) EvaluateRows(table, column, target, op, key string) [][]string {
+	// Returns rows of columns where key relates to target via op (>=/=/...)
+	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE %s %s '%s';", column, table, target, op, key)
 	rows, err := d.DB.Query(cmd)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
