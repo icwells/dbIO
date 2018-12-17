@@ -139,6 +139,9 @@ Give operator, key, and target as emtpy strings to count without evaluating.
 Updates rows where target == map key with map values (automatically matched to columns). 
 Returns number of rows updated.  
 
+#### DBIO.UpdateRow(table, column, value, target, op, key string) bool  
+Updates single column in table, where target relates to key via operator. Returns true if successful.  
+
 #### DBIO.DeleteRow(table, column, value string)  
 Deletes row(s) from database where column name == given value.  
 

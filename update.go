@@ -107,6 +107,24 @@ func (d *DBIO) UpdateRows(table, target string, values map[string][]string) int 
 	return ret
 }
 
+func (d *DBIO) UpdateRow(table, column, value, target, op, key string) bool {
+	// Updates single column in table, returns true if successful
+	ret := true
+	cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, column, value, target, op, key))
+	if err != nil {
+		fmt.Printf("\t[Error] Preparing update for %s: %v\n", table, err)
+		ret = false
+	} else {
+		_, err = cmd.Exec()
+		cmd.Close()
+		if err != nil {
+			fmt.Printf("\t[Error] Updating row from %s: %v\n", table, err)
+			ret = false
+		}
+	}
+	return ret
+}
+
 func (d *DBIO) DeleteRow(table, column, value string) {
 	// Deletes row(s) from database where column name = given value
 	cmd, err := d.DB.Prepare(fmt.Sprintf("DELETE FROM %s WHERE %s = '%s';", table, column, value))
