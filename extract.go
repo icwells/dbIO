@@ -135,7 +135,7 @@ func (d *DBIO) GetRows(table, column, key, target string) [][]string {
 
 func (d *DBIO) EvaluateRows(table, column, target, op, key string) [][]string {
 	// Returns rows of columns where key relates to target via op (>=/=/...)
-	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE %s %s '%s';", column, table, target, op, key)
+	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE %s %s '%s';", target, table, column, op, key)
 	rows, err := d.DB.Query(cmd)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
