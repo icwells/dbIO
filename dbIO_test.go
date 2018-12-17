@@ -3,15 +3,9 @@
 package dbIO
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
-
-func fmtMessage(field, a, e string) string {
-	// Returns formatted string
-	return fmt.Sprintf("Actual %s %s is not equal to expected: %s", field, a, e)
-}
 
 func TestColumnEqualTo(t *testing.T) {
 	// Tests columnEqualTo function (in update.go)
@@ -21,16 +15,13 @@ func TestColumnEqualTo(t *testing.T) {
 			{"3","","6"},
 			{"Leopard","5"},
 		}
-	expected := []string{"ID='1',Name='Lion',Age='12", "ID='2',Name='Tiger'", "ID='3,Age='6"}
-	actual := columnEqualTo("ID,Name,Age", values)
-	if len(actual) != len(expected) {
-		msg := fmtMessage("length", string(len(actual)), string(len(expected)))
-		t.Error(msg)
-	}
-	for idx, i := range actual {
-		if len(i) == 3 && i != expected[idx] {
-			msg := fmtMessage("row", i, expected[idx])
-			t.Error(msg)
+	expected := []string{"ID='1',Name='Lion',Age='12'", "ID='2',Name='Tiger'", "ID='3',Age='6'"}
+	for idx, i := range values {
+		actual := columnEqualTo("ID,Name,Age", i)
+		if len(i) != 3 && actual != "" {
+ 			t.Error("Row with incorrect numebr of columns is not empty.")
+		} else if idx <= 2 && actual != expected[idx] {
+			t.Errorf("Actual row %s is not equal to expected: %s", actual, expected[idx])
 		}
 	}
 }
@@ -50,8 +41,7 @@ func TestEscapeChars(t *testing.T) {
 	for _, i := range matches {
 		actual := escapeChars(i.input)
 		if actual != i.expected {
-			msg := fmtMessage("escaped value", actual, i.expected)
-			t.Error(msg)
+			t.Errorf("Actual excaped value %s is not equal to expected: %s", actual, i.expected)
 		}
 	}
 }
@@ -74,8 +64,7 @@ func TestFormatMap(t *testing.T) {
 	}
 	actual, aclen := FormatMap(values)
 	if aclen != exlen {
-		msg := fmtMessage("length from map", string(aclen), string(exlen))
-		t.Error(msg)
+		t.Errorf("Actual length from map %s is not equal to expected: %s", string(aclen), string(exlen))
 	}
 	// Compare individual elements to account for random order of map
 	a := strings.Split(actual, "),(")
@@ -88,9 +77,8 @@ func TestFormatMap(t *testing.T) {
 			j = strings.Replace(j, "(", "", -1)
 			j = strings.Replace(j, ")", "", -1)
 			if id == strings.Split(j, ",")[0] {
-				if i != j {		
-					msg := fmtMessage("string from map", i, j)
-					t.Error(msg)
+				if i != j {
+					t.Errorf("Actual string from map %s is not equal to expected: %s", i, j)
 				}
 				break
 			}
@@ -109,11 +97,9 @@ func TestFormatSlice(t *testing.T) {
 	}
 	actual, aclen := FormatSlice(values)
 	if aclen != exlen {
-		msg := fmtMessage("length from slice", string(aclen), string(exlen))
-		t.Error(msg)
+		t.Errorf("Actual length from slice %s is not equal to expected: %s", string(aclen), string(exlen))
 	} else if actual != expected {
-		msg := fmtMessage("string from slice", actual, expected)
-		t.Error(msg)
+		t.Errorf("Actual string from slice %s is not equal to expected: %s",  actual, expected)
 	}
 }
 
@@ -131,8 +117,7 @@ func TestAddApostrophes(t *testing.T) {
 	for _, i := range matches {
 		actual := addApostrophes(i.input)
 		if actual != i.expected {
-			msg := fmtMessage("apostrophe string", actual, i.expected)
-			t.Error(msg)
+			t.Errorf("Actual apostrophe string %s is not equal to expected: %s",  actual, i.expected)
 		}
 	}
 }

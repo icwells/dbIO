@@ -135,8 +135,8 @@ Give operator, key, and target as emtpy strings to count without evaluating.
 
 ### Updating and deleting  
 
-#### DBIO.UpdateRow(table, target, key string, values [][]string) int 
-Updates rows where target == key with given values (automatically matched to columns). 
+#### DBIO.UpdateRows(table, target string, values map[string][]string) int 
+Updates rows where target == map key with map values (automatically matched to columns). 
 Returns number of rows updated.  
 
 #### DBIO.DeleteRow(table, column, value string)  

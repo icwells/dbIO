@@ -58,16 +58,15 @@ func (d *DBIO) TruncateTable(table string) {
 	}
 }
 
-func columnEqualTo(columns string, values [][]string) []string {
-	// Matches columns to inner slice by index, returns empty slice if indeces are not equal
-	var ret []string
+func columnEqualTo(columns string, values []string) string {
+	// Matches columns to slice by index, returns empty slice if indeces are not equal
+	first := true
 	col := strings.Split(columns, ",")
-	for _, val := range values {
-		if len(val) == len(col) {
-			// Concatenate string for each row
-			first := true
-			buffer := bytes.NewBufferString("")
-			for idx, i := range val {
+	buffer := bytes.NewBufferString("")
+	if len(values) == len(col) {
+		for idx, i := range values {
+			if len(i) >= 1 {
+				// Concatenate string
 				if first == false {
 					// Write seperating comma
 					buffer.WriteByte(',')
@@ -82,18 +81,17 @@ func columnEqualTo(columns string, values [][]string) []string {
 					first = false
 				}
 			}
-			ret = append(ret, buffer.String())
 		}
 	}
-	return ret
+	return buffer.String()
 }
 
-func (d *DBIO) UpdateRow(table, target, key string, values [][]string) int {
+func (d *DBIO) UpdateRows(table, target string, values map[string][]string) int {
 	// Updates rows where target = key with values (matched to columns)
 	ret := 0
-	val := columnEqualTo(d.Columns[table], values)
-	for _, i := range val {
-		cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s WHERE %s = %s;", table, i, target, key))
+	for k, v := range values {
+		val := columnEqualTo(d.Columns[table], v)
+		cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s WHERE %s = %s;", table, val, target, k))
 		if err != nil {
 			fmt.Printf("\t[Error] Preparing update for %s: %v\n", table, err)
 		} else {
