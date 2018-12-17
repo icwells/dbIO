@@ -107,10 +107,10 @@ func (d *DBIO) UpdateRows(table, target string, values map[string][]string) int 
 	return ret
 }
 
-func (d *DBIO) UpdateRow(table, column, value, target, op, key string) bool {
+func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
 	// Updates single column in table, returns true if successful
 	ret := true
-	cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, column, value, target, op, key))
+	cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, target, value, column, op, key))
 	if err != nil {
 		fmt.Printf("\t[Error] Preparing update for %s: %v\n", table, err)
 		ret = false
