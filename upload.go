@@ -7,7 +7,9 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func (d *DBIO) UpdateDB(table, values string, l int) int {
@@ -34,12 +36,6 @@ func escapeChars(v string) string {
 	na := []string{"na", "Na", "N/A"}
 	// Reset backslashes to dashes
 	v = strings.Replace(v, `\`, "-", -1)
-	for _, i := range na {
-		// Standardize NA values
-		if v == i {
-			v = strings.Replace(v, i, "NA", -1)
-		}
-	}
 	for _, i := range chars {
 		idx := 0
 		for strings.Contains(v[idx:], i) == true {
@@ -51,7 +47,24 @@ func escapeChars(v string) string {
 			idx++
 		}
 	}
+	for _, i := range na {
+		// Standardize NA values
+		if strings.Contains(v, i) == true {
+			v = strings.Replace(v, i, "NA", -1)
+		}
+	}
 	return v
+}
+
+func validateString(v string) string {
+	// Returns valid string for upload to database
+	if _, err := strconv.Atoi(v); err != nil {
+		// Avoid assigning NA to numerical value
+		if utf8.ValidString(v) == false || strings.Contains(v, `\xEF\xBF\xBD`) == true {
+			v = "NA"
+		}
+	}
+	return escapeChars(v)
 }
 
 func FormatMap(data map[string][]string) (string, int) {
@@ -67,13 +80,12 @@ func FormatMap(data map[string][]string) (string, int) {
 		}
 		buffer.WriteByte('(')
 		for _, v := range val {
-			v = escapeChars(v)
 			if f == false {
 				buffer.WriteByte(',')
 			}
 			// Wrap in apostrophes to preserve spaces and reserved characters
 			buffer.WriteByte('\'')
-			buffer.WriteString(v)
+			buffer.WriteString(validateString(v))
 			buffer.WriteByte('\'')
 			f = false
 		}
@@ -94,13 +106,12 @@ func FormatSlice(data [][]string) (string, int) {
 		}
 		buffer.WriteByte('(')
 		for i, v := range row {
-			v = escapeChars(v)
 			if i != 0 {
 				buffer.WriteByte(',')
 			}
 			// Wrap in apostrophes to preserve spaces and reserved characters
 			buffer.WriteByte('\'')
-			buffer.WriteString(v)
+			buffer.WriteString(validateString(v))
 			buffer.WriteByte('\'')
 		}
 		buffer.WriteByte(')')
