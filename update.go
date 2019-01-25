@@ -39,7 +39,8 @@ func CreateDatabase(database, user string) *DBIO {
 	// Connects and creates new database
 	d := Connect("", user)
 	d.create(database)
-	// Return donneciton to given database
+	// Return conneciton to given database
+	d.Database = database
 	d.connect()
 	return d
 }
@@ -58,7 +59,8 @@ func ReplaceDatabase(database, user string) *DBIO {
 			d.create(database)
 		}
 	}
-	// Return donneciton to given database
+	// Return dcnneciton to given database
+	d.Database = database
 	d.connect()
 	return d
 }
