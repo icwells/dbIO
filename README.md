@@ -74,9 +74,9 @@ The input file should be in the following format:
 Table names should be preceded with a pound sign. Column names should be the first element of the line and must be 
 followed by the column type. Any valid MySQL key words for column creation (UNIQUE, PRIMARY KEY, ...) may follow the type.  
 
-#### DBIO.ReadColumns(infile string, types bool)  
-Reads in tables and columns from input file (see above) and stores in DBIO.Columns. If types is true, the column types and 
-any additional column descriptors will be stored (for creating tables). Otherwise, only the column names are stored.  
+#### DBIO.ReadColumns(infile string)  
+Reads in tables and columns from input file (see above) and stores in DBIO.Columns. The column types and 
+any additional column descriptors will be stored for creating tables.  
 
 #### DBIO.GetTableColumns()  
 Retrieves names tables and their columns from an existing database and stores in Columns map.  

@@ -144,7 +144,7 @@ WHERE table_schema = DATABASE() GROUP BY table_name ORDER BY table_name`
 	fmt.Println(s)
 }
 
-func (d *DBIO) ReadColumns(infile string, types bool) {
+func (d *DBIO) ReadColumns(infile string) {
 	// Build map of column statements
 	d.Columns = make(map[string]string)
 	var table string
@@ -159,13 +159,7 @@ func (d *DBIO) ReadColumns(infile string, types bool) {
 				table = strings.TrimSpace(line[1:])
 			} else {
 				// Get columns for given table
-				var col string
-				if types == true {
-					col = strings.TrimSpace(line)
-				} else {
-					c := strings.Split(line, " ")
-					col = strings.TrimSpace(c[0])
-				}
+				col := strings.TrimSpace(line)
 				if _, ex := d.Columns[table]; ex == true {
 					d.Columns[table] = d.Columns[table] + ", " + col
 				} else {
@@ -179,7 +173,7 @@ func (d *DBIO) ReadColumns(infile string, types bool) {
 func (d *DBIO) NewTables(infile string) {
 	// Initializes new tables
 	fmt.Println("\n\tInitializing new tables...")
-	d.ReadColumns(infile, true)
+	d.ReadColumns(infile)
 	for k, v := range d.Columns {
 		cmd := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s(%s);", k, v)
 		_, err := d.DB.Exec(cmd)

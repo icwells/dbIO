@@ -74,7 +74,7 @@ func (d *DBIO) connect() {
 	}
 	// Begin recording time after password input
 	d.Starttime = time.Now()
-	cmd := d.User+":"+d.Password
+	cmd := d.User + ":" + d.Password
 	if len(d.Database) > 0 {
 		// Connect to specific database
 		cmd = cmd + "@/" + d.Database + "&charset=utf8mb4"

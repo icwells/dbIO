@@ -10,16 +10,16 @@ import (
 func TestColumnEqualTo(t *testing.T) {
 	// Tests columnEqualTo function (in update.go)
 	values := [][]string{
-			{"1","Lion","12"},
-			{"2","Tiger",""},
-			{"3","","6"},
-			{"Leopard","5"},
-		}
+		{"1", "Lion", "12"},
+		{"2", "Tiger", ""},
+		{"3", "", "6"},
+		{"Leopard", "5"},
+	}
 	expected := []string{"ID='1',Name='Lion',Age='12'", "ID='2',Name='Tiger'", "ID='3',Age='6'"}
 	for idx, i := range values {
 		actual := columnEqualTo("ID,Name,Age", i)
 		if len(i) != 3 && actual != "" {
- 			t.Error("Row with incorrect numebr of columns is not empty.")
+			t.Error("Row with incorrect numebr of columns is not empty.")
 		} else if idx <= 2 && actual != expected[idx] {
 			t.Errorf("Actual row %s is not equal to expected: %s", actual, expected[idx])
 		}
@@ -28,10 +28,10 @@ func TestColumnEqualTo(t *testing.T) {
 
 func TestEscapeChars(t *testing.T) {
 	// Tests escapeChars (in upload.go) function using raw strings
-	matches := []struct{
-		input		string
-		expected	string
-	} {
+	matches := []struct {
+		input    string
+		expected string
+	}{
 		{"N/A", "NA"},
 		{"Na", "NA"},
 		{"black_footed_ferret", `black\_footed\_ferret`},
@@ -99,16 +99,16 @@ func TestFormatSlice(t *testing.T) {
 	if aclen != exlen {
 		t.Errorf("Actual length from slice %s is not equal to expected: %s", string(aclen), string(exlen))
 	} else if actual != expected {
-		t.Errorf("Actual string from slice %s is not equal to expected: %s",  actual, expected)
+		t.Errorf("Actual string from slice %s is not equal to expected: %s", actual, expected)
 	}
 }
 
 func TestAddApostrophes(t *testing.T) {
 	// Tests addApostrophes function (in extract.go)
-	matches := []struct{
-		input		string
-		expected	string
-	} {
+	matches := []struct {
+		input    string
+		expected string
+	}{
 		{"1,Weasel,15", "'1','Weasel','15'"},
 		{"2,stoat,9", "'2','stoat','9'"},
 		{"3,egret,NA", "'3','egret','NA'"},
@@ -117,7 +117,7 @@ func TestAddApostrophes(t *testing.T) {
 	for _, i := range matches {
 		actual := addApostrophes(i.input)
 		if actual != i.expected {
-			t.Errorf("Actual apostrophe string %s is not equal to expected: %s",  actual, i.expected)
+			t.Errorf("Actual apostrophe string %s is not equal to expected: %s", actual, i.expected)
 		}
 	}
 }
