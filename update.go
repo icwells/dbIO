@@ -24,7 +24,7 @@ type DBIO struct {
 
 func (d *DBIO) create(database string) {
 	// Creates new database with utf8 charset
-	cmd, err := d.DB.Prepare(fmt.Sprintf("CREATE DATABASE %s IF NOT EXISTS CHARACTER SET utf8mb4;", database))
+	cmd, err := d.DB.Prepare(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s CHARACTER SET utf8mb4;", database))
 	if err != nil {
 		fmt.Printf("\t[Error] Formatting command to create database %s: %v\n", database, err)
 	} else {
@@ -35,16 +35,17 @@ func (d *DBIO) create(database string) {
 	}
 }
 
-func CreateDatabase(database, user string) {
+func CreateDatabase(database, user string) *DBIO {
 	// Connects and creates new database
 	d := Connect("", user)
 	d.create(database)
+	return d
 }
 
-func ReplaceDatabase(database, user string) {
+func ReplaceDatabase(database, user string) *DBIO {
 	// Deletes database and creates new one (for testing)
 	d := Connect("", user)
-	cmd, err := d.DB.Prepare(fmt.Sprintf("DROP DATABASE %s;", database))
+	cmd, err := d.DB.Prepare(fmt.Sprintf("DROP DATABASE IF EXISTS %s;", database))
 	if err != nil {
 		fmt.Printf("\t[Error] Formatting command to delete database %s: %v\n", database, err)
 	} else {
@@ -55,6 +56,7 @@ func ReplaceDatabase(database, user string) {
 			d.create(database)
 		}
 	}
+	return d
 }
 
 func Connect(database, user string) *DBIO {

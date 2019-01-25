@@ -7,7 +7,7 @@ Copyright 2018 by Shawn Rupp
 2. [Usage](#usage)  
 3. [Uploading](#uploading-to-a-database)  
 4. [Extracting](#extracting-from-a-database)  
-5. [Update/Delete](#updating-and-deleting)
+5. [Update/Delete](#updating-and-deleting)  
 
 ## Dependencies:  
 
@@ -49,9 +49,16 @@ Starttime time.Time
 Columns   map[string]string  
 ```
 DB is the database connection, while database stores the database name. User is the user name, and Starttime 
-is the time point after the password is given. Lastly, columns 
-stores a map with a comma-seperated string of column name for each table. This map is currently read in from a 
-text file (for initializing a new database), but it may be updated to read from the database in the future.  
+is the time point after the password is given. Lastly, columns stores a map with a comma-seperated string of column 
+name for each table. While methods for many common operations are provided in this package, any SQL query can be run directly using DB.  
+
+#### Creating/Replacing Databases  
+CreateDatabase can be used to initializes a database with a given name (although NewTables must be called to initialize the tables within the databse).  
+Similarly, ReplaceDatabase will drop an existing database (if it exists) and re-initialize it (for testing).  
+```
+dbio.CreateDatabase(database, user string)  
+dbio.ReplaceDatabase(database, user string)  
+```
 
 ### Uploading to a database 
 
@@ -71,6 +78,9 @@ followed by the column type. Any valid MySQL key words for column creation (UNIQ
 Reads in tables and columns from input file (see above) and stores in DBIO.Columns. If types is true, the column types and 
 any additional column descriptors will be stored (for creating tables). Otherwise, only the column names are stored.  
 
+#### DBIO.GetTableColumns()  
+Retrieves names tables and their columns from an existing database and stores in Columns map.  
+
 #### Formatting data for upload  
 ```
 dbIO.FormatMap(data map[string][]string) (string, int)  
@@ -83,9 +93,9 @@ These functions will format a map or slice of string slices into a comma/parenth
 ```
 becomes 
 ```
-"(5,Apple),(3,Orange)"  
+"('5','Apple'),('3','Orange')"  
 ```
-They both return a string of the data and an ionteger of the number rows that were formatted. Both are stand-alone functions and do not use a DBIO object.  
+They both return a string of the data and an integer of the number rows that were formatted. Both are stand-alone functions and do not use a DBIO object.  
 The input data should contian the same number of columns as the table is to be uploaded to. (Map keys are not included in the upload.)  
 
 #### DBIO.UpdateDB(table, values string, l int) int  
