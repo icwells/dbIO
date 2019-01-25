@@ -39,6 +39,8 @@ func CreateDatabase(database, user string) *DBIO {
 	// Connects and creates new database
 	d := Connect("", user)
 	d.create(database)
+	// Return donneciton to given database
+	d.connect()
 	return d
 }
 
@@ -56,16 +58,15 @@ func ReplaceDatabase(database, user string) *DBIO {
 			d.create(database)
 		}
 	}
+	// Return donneciton to given database
+	d.connect()
 	return d
 }
 
-func Connect(database, user string) *DBIO {
-	// Attempts to connect to sql database. Returns dbio instance.
+func (d *DBIO) connect() {
+	// Connects to database
 	var err error
-	d := new(DBIO)
-	d.Database = database
-	d.User = user
-	if d.User != "guest" {
+	if d.User != "guest" && len(d.Password) < 1 {
 		// Prompt for password
 		d.Password = prompter.Password("\n\tEnter MySQL password")
 	}
@@ -84,6 +85,14 @@ func Connect(database, user string) *DBIO {
 	if err = d.DB.Ping(); err != nil {
 		fmt.Printf("\n\t[Error] Cannot connect to database: %v", err)
 	}
+}
+
+func Connect(database, user string) *DBIO {
+	// Attempts to connect to sql database. Returns dbio instance.
+	d := new(DBIO)
+	d.Database = database
+	d.User = user
+	d.connect()
 	return d
 }
 
