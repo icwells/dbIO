@@ -22,6 +22,41 @@ type DBIO struct {
 	Columns   map[string]string
 }
 
+func (d *DBIO) create(database string) {
+	// Creates new database with utf8 charset
+	cmd, err := d.DB.Prepare(fmt.Sprintf("CREATE DATABASE %s IF NOT EXISTS CHARACTER SET utf8mb4;", database))
+	if err != nil {
+		fmt.Printf("\t[Error] Formatting command to create database %s: %v\n", database, err)
+	} else {
+		_, err = cmd.Exec()
+		if err != nil {
+			fmt.Printf("\t[Error] Creating database %s: %v\n", database, err)
+		}
+	}
+}
+
+func CreateDatabase(database, user string) {
+	// Connects and creates new database
+	d := Connect("", user)
+	d.create(database)
+}
+
+func ReplaceDatabase(database, user string) {
+	// Deletes database and creates new one (for testing)
+	d := Connect("", user)
+	cmd, err := d.DB.Prepare(fmt.Sprintf("DROP DATABASE %s;", database))
+	if err != nil {
+		fmt.Printf("\t[Error] Formatting command to delete database %s: %v\n", database, err)
+	} else {
+		_, err = cmd.Exec()
+		if err != nil {
+			fmt.Printf("\t[Error] Deleting database %s: %v\n", database, err)
+		} else {
+			d.create(database)
+		}
+	}
+}
+
 func Connect(database, user string) *DBIO {
 	// Attempts to connect to sql database. Returns dbio instance.
 	var err error
@@ -34,7 +69,12 @@ func Connect(database, user string) *DBIO {
 	}
 	// Begin recording time after password input
 	d.Starttime = time.Now()
-	d.DB, err = sql.Open("mysql", d.User+":"+d.Password+"@/"+d.Database)
+	cmd := d.User+":"+d.Password
+	if len(d.Database) > 0 {
+		// Connect to specific database
+		cmd = cmd + "@/" + d.Database + "&charset=utf8mb4"
+	}
+	d.DB, err = sql.Open("mysql", cmd)
 	if err != nil {
 		fmt.Printf("\n\t[Error] Incorrect username or password: %v", err)
 		os.Exit(1000)
