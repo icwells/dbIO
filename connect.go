@@ -77,10 +77,10 @@ func (d *DBIO) connect() {
 	}
 	// Begin recording time after password input
 	d.Starttime = time.Now()
-	cmd := d.User + ":" + d.Password + "@" + d.Host
+	cmd := d.User + ":" + d.Password + "@" + d.Host + "/"
 	if len(d.Database) > 0 {
 		// Connect to specific database
-		cmd = cmd + "/" + d.Database + "?charset=utf8mb4"
+		cmd = cmd + d.Database + "?charset=utf8mb4"
 	}
 	d.DB, err = sql.Open("mysql", cmd)
 	if err != nil {
