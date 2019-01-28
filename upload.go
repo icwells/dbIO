@@ -5,6 +5,7 @@ package dbIO
 import (
 	"bufio"
 	"bytes"
+	"database/sql"
 	"fmt"
 	"os"
 	"strconv"
@@ -130,6 +131,27 @@ func openFile(file string) *os.File {
 	return f
 }
 
+func (d *DBIO) columnMap(rows *sql.Rows) {
+	// Converts sql query result to map of strings
+	columns, _ := rows.Columns()
+	count := len(columns)
+	values := make([]interface{}, count)
+	pointers := make([]interface{}, count)
+	for rows.Next() {
+		for i, _ := range columns {
+			pointers[i] = &values[i]
+		}
+		// Maps items to values via pointers
+		rows.Scan(pointers...)
+		fmt.Println(pointers)
+		// Use Sprintf to convert interface to string
+		k := fmt.Sprintf("%s", values[0])
+		v := fmt.Sprintf("%s", values[1])
+		d.Columns[k] = v
+	}
+	fmt.Println(d.Columns)
+}
+
 func (d *DBIO) GetTableColumns() {
 	// Extracts tables and columns from database and stores in Columns map
 	d.Columns = make(map[string]string)
@@ -140,8 +162,7 @@ WHERE table_schema = DATABASE() GROUP BY table_name ORDER BY table_name;`
 		fmt.Fprintf(os.Stderr, "\n\t[ERROR] Extracting table and column names: %v\n\n", err)
 	}
 	defer rows.Close()
-	fmt.Println(rows)
-	//s := toSlice(rows)
+	d.columnMap(rows)
 }
 
 func (d *DBIO) ReadColumns(infile string) {
