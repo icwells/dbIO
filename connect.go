@@ -12,11 +12,12 @@ import (
 )
 
 var (
-	LOCALHOST = "tcp(localhost:3306)"
+	LOCALHOST = "localhost"
 )
 
 type DBIO struct {
 	DB        *sql.DB
+	Host	  string
 	Database  string
 	User      string
 	Password  string
@@ -37,9 +38,9 @@ func (d *DBIO) create(database string) {
 	}
 }
 
-func CreateDatabase(database, user string) *DBIO {
+func CreateDatabase(host, database, user string) *DBIO {
 	// Connects and creates new database
-	d := Connect(LOCALHOST, user)
+	d := Connect(host, "", user)
 	d.create(database)
 	// Return conneciton to given database
 	d.Database = database
@@ -47,9 +48,9 @@ func CreateDatabase(database, user string) *DBIO {
 	return d
 }
 
-func ReplaceDatabase(database, user string) *DBIO {
+func ReplaceDatabase(host, database, user string) *DBIO {
 	// Deletes database and creates new one (for testing)
-	d := Connect(LOCALHOST, user)
+	d := Connect(host, "", user)
 	cmd, err := d.DB.Prepare(fmt.Sprintf("DROP DATABASE IF EXISTS %s;", database))
 	if err != nil {
 		fmt.Printf("\t[Error] Formatting command to delete database %s: %v\n", database, err)
@@ -76,10 +77,10 @@ func (d *DBIO) connect() {
 	}
 	// Begin recording time after password input
 	d.Starttime = time.Now()
-	cmd := d.User + ":" + d.Password
+	cmd := d.User + ":" + d.Password + "@" + d.Host
 	if len(d.Database) > 0 {
 		// Connect to specific database
-		cmd = cmd + "@/" + d.Database + "?charset=utf8mb4"
+		cmd = cmd + "/" + d.Database + "?charset=utf8mb4"
 	}
 	d.DB, err = sql.Open("mysql", cmd)
 	if err != nil {
@@ -91,9 +92,15 @@ func (d *DBIO) connect() {
 	}
 }
 
-func Connect(database, user string) *DBIO {
+func Connect(host, database, user string) *DBIO {
 	// Attempts to connect to sql database. Returns dbio instance.
 	d := new(DBIO)
+	if len(host) < 1 {
+		// Default to local host if empty
+		d.Host = LOCALHOST
+	} else {
+		d.Host = host
+	}
 	d.Database = database
 	d.User = user
 	d.connect()

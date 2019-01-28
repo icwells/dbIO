@@ -42,14 +42,15 @@ the user before storing the start time (for recording program run time).
 Returns a DBIO instance containing:  
 ```
 DB        *sql.DB  
+Host	  string
 Database  string  
 User      string  
 Password  string  
 Starttime time.Time  
 Columns   map[string]string  
 ```
-DB is the database connection, while database stores the database name. User is the user name, and Starttime 
-is the time point after the password is given. Lastly, columns stores a map with a comma-seperated string of column 
+DB is the database connection, while database stores the database name and host stores the IP (defaults to localhost if left empty). 
+User is the user name, and Starttime is the time point after the password is given. Lastly, columns stores a map with a comma-seperated string of column 
 name for each table. While methods for many common operations are provided in this package, any SQL query can be run directly using DB.  
 
 #### Creating/Replacing Databases  
