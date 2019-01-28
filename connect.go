@@ -95,12 +95,12 @@ func (d *DBIO) connect() {
 func Connect(host, database, user string) *DBIO {
 	// Attempts to connect to sql database. Returns dbio instance.
 	d := new(DBIO)
-	if len(host) < 1 {
+	/*if len(host) < 1 {
 		// Default to local host if empty
 		d.Host = LOCALHOST
-	} else {
-		d.Host = host
-	}
+	} else {*/
+	d.Host = host
+	//}
 	d.Database = database
 	d.User = user
 	d.connect()
