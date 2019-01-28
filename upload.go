@@ -151,7 +151,7 @@ func (d *DBIO) columnMap(rows *sql.Rows) {
 }
 
 func (d *DBIO) GetTableColumns() {
-	// Extracts tables and columns from database and stores in Columns map
+	// Extracts table and column names from database and stores in Columns map
 	d.Columns = make(map[string]string)
 	cmd := `SELECT table_name,GROUP_CONCAT(column_name ORDER BY ordinal_position) FROM information_schema.columns 
 WHERE table_schema = DATABASE() GROUP BY table_name ORDER BY table_name;`
@@ -164,7 +164,7 @@ WHERE table_schema = DATABASE() GROUP BY table_name ORDER BY table_name;`
 }
 
 func (d *DBIO) ReadColumns(infile string) {
-	// Build map of column statements
+	// Build map of column statements with types
 	d.Columns = make(map[string]string)
 	var table string
 	f := openFile(infile)
