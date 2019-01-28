@@ -28,12 +28,14 @@ func (d *DBIO) Count(table, column, target, op, key string, distinct bool) int {
 	} else {
 		cmd = fmt.Sprintf("SELECT COUNT(%s) FROM %s", target, table)
 	}
-	if len(op) >= 1 && len(key) >= 1 && len(column) >= 1 {
-		// Add evaluation statement
-		cmd += fmt.Sprintf(" WHERE %s %s '%s'", column, op, key)
-	} else if len(op) < 1 || len(key) < 1 || len(column) < 1 {
-		fmt.Print("\n\t[Error] Please specify target column, operator, and target value. Returning -1.\n")
-		return -1
+	if len(op) >= 1 || len(key) >= 1 || len(column) >= 1 {
+		if len(op) >= 1 && len(key) >= 1 && len(column) >= 1 {
+			// Add evaluation statement
+			cmd += fmt.Sprintf(" WHERE %s %s '%s'", column, op, key)
+		} else {
+			fmt.Print("\n\t[Error] Please specify target column, operator, and target value. Returning -1.\n")
+			return -1
+		}
 	}
 	return d.getCount(table, cmd)
 }
