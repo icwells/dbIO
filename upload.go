@@ -143,13 +143,11 @@ func (d *DBIO) columnMap(rows *sql.Rows) {
 		}
 		// Maps items to values via pointers
 		rows.Scan(pointers...)
-		fmt.Println(pointers)
 		// Use Sprintf to convert interface to string
 		k := fmt.Sprintf("%s", values[0])
 		v := fmt.Sprintf("%s", values[1])
 		d.Columns[k] = v
 	}
-	fmt.Println(d.Columns)
 }
 
 func (d *DBIO) GetTableColumns() {
