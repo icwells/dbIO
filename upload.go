@@ -141,7 +141,7 @@ WHERE table_schema = DATABASE() GROUP BY table_name ORDER BY table_name;`
 	}
 	defer rows.Close()
 	fmt.Println(rows)
-	s := toSlice(rows)
+	//s := toSlice(rows)
 }
 
 func (d *DBIO) ReadColumns(infile string) {
