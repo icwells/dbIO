@@ -34,7 +34,7 @@ func (d *DBIO) UpdateDB(table, values string, l int) int {
 func escapeChars(v string) string {
 	// Returns value with any reserved characters escaped and standarizes NAs
 	chars := []string{"'", "\"", "_"}
-	na := []string{"na", "Na", "N/A"}
+	na := []string{" na ", " Na ", "N/A"}
 	// Reset backslashes to dashes
 	v = strings.Replace(v, `\`, "-", -1)
 	for _, i := range chars {
@@ -52,6 +52,8 @@ func escapeChars(v string) string {
 		// Standardize NA values
 		if strings.Contains(v, i) == true {
 			v = strings.Replace(v, i, "NA", -1)
+		} else if strings.TrimSpace(i) == strings.TrimSpace(v) {
+			v = "NA"
 		}
 	}
 	return v
