@@ -85,6 +85,7 @@ func (d *DBIO) connect() {
 	}
 	if err = d.DB.Ping(); err != nil {
 		fmt.Printf("\n\t[Error] Cannot connect to database: %v", err)
+		os.Exit(1001)
 	}
 }
 
