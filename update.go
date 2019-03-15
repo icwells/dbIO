@@ -5,6 +5,7 @@ package dbIO
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -51,8 +52,10 @@ func columnEqualTo(columns string, values []string) string {
 
 func wrapApo(v string) string {
 	// Wraps calls escapeChars and v in appstrophes
-	v = escapeChars(v)
-	return fmt.Sprintf("'%s'", v)
+	if _, err := strconv.ParseFloat(v, 64); err != nil {
+		return fmt.Sprintf("'%s'", escapeChars(v))
+	}
+	return v
 }
 
 func (d *DBIO) UpdateRows(table, target string, values map[string][]string) int {

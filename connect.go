@@ -13,7 +13,7 @@ import (
 
 type DBIO struct {
 	DB        *sql.DB
-	Host	  string
+	Host      string
 	Database  string
 	User      string
 	Password  string
