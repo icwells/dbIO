@@ -49,12 +49,18 @@ func columnEqualTo(columns string, values []string) string {
 	return buffer.String()
 }
 
+func wrapApo(v string) string {
+	// Wraps calls escapeChars and v in appstrophes
+	v = escapeChars(v)
+	return fmt.Sprintf("'%s'", v)
+}
+
 func (d *DBIO) UpdateRows(table, target string, values map[string][]string) int {
 	// Updates rows where target = key with values (matched to columns)
 	ret := 0
 	for k, v := range values {
 		val := columnEqualTo(d.Columns[table], v)
-		cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s WHERE %s = %s;", table, val, target, k))
+		cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s WHERE %s = %s;", table, wrapApo(val), target, wrapApo(k)))
 		if err != nil {
 			fmt.Printf("\t[Error] Preparing update for %s: %v\n", table, err)
 		} else {
@@ -73,7 +79,7 @@ func (d *DBIO) UpdateRows(table, target string, values map[string][]string) int 
 func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
 	// Updates single column in table, returns true if successful
 	ret := true
-	cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, target, value, column, op, key))
+	cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, target, wrapApo(value), column, op, wrapApo(key)))
 	if err != nil {
 		fmt.Printf("\t[Error] Preparing update for %s: %v\n", table, err)
 		ret = false
