@@ -36,9 +36,9 @@ dbIO uses iotools to read in database schema template file.
 dbIO stores relevant connection in a DBIO struct which is returned the Connect function.  
 
 ### Connect and the DBIO struct  
-	dbIO.Connect(database, user string) *DBIO  
+	dbIO.Connect(host, database, user, password string) *DBIO  
 
-Attempts to connect to given sql database with given user name. It will prompt for a password from 
+Attempts to connect to given sql database with given user name. If the password is left blank, it will prompt for a password from 
 the user before storing the start time (for recording program run time).  
 
 Returns a DBIO instance containing:  
@@ -62,6 +62,12 @@ Similarly, ReplaceDatabase will drop an existing database (if it exists) and re-
 dbio.CreateDatabase(database, user string)  
 dbio.ReplaceDatabase(database, user string)  
 ```
+
+Additionally, the Ping function can be used to test credentials:  
+
+	dbio.Ping(database, user string, password)  
+
+It will return true if a connection was successfully established, or false if it was not.  
 
 ### Uploading to a database 
 
