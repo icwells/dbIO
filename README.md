@@ -59,13 +59,13 @@ name for each table. While methods for many common operations are provided in th
 CreateDatabase can be used to initializes a database with a given name (although NewTables must be called to initialize the tables within the databse).  
 Similarly, ReplaceDatabase will drop an existing database (if it exists) and re-initialize it (for testing).  
 ```
-dbio.CreateDatabase(database, user string)  
-dbio.ReplaceDatabase(database, user string)  
+dbio.CreateDatabase(host, database, user string)  
+dbio.ReplaceDatabase(host, database, user string)  
 ```
 
 Additionally, the Ping function can be used to test credentials:  
 
-	dbio.Ping(database, user string, password)  
+	dbio.Ping(host, database, user, password string)  
 
 It will return true if a connection was successfully established, or false if it was not.  
 
