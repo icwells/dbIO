@@ -24,7 +24,11 @@ type DBIO struct {
 func NewDBIO(host, database, user, password string) *DBIO {
 	// Returns initialized struct
 	d := new(DBIO)
-	d.Host = host
+	if len(host) < 1 {
+		d.Host = "localhost"
+	} else {
+		d.Host = fmt.Sprintf("tcp(%s:3306)", host)
+	}
 	d.Database = database
 	d.User = user
 	d.Password = password
