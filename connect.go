@@ -49,7 +49,11 @@ func (d *DBIO) create(database string) {
 
 func CreateDatabase(host, database, user string) *DBIO {
 	// Connects and creates new database
-	d := Connect(host, "", user, "")
+	d, err := Connect(host, "", user, "")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1000)
+	}
 	d.create(database)
 	// Return conneciton to given database
 	d.Database = database
@@ -59,7 +63,11 @@ func CreateDatabase(host, database, user string) *DBIO {
 
 func ReplaceDatabase(host, database, user string) *DBIO {
 	// Deletes database and creates new one (for testing)
-	d := Connect(host, "", user, "")
+	d, err := Connect(host, "", user, "")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1000)
+	}
 	cmd, err := d.DB.Prepare(fmt.Sprintf("DROP DATABASE IF EXISTS %s;", database))
 	if err != nil {
 		fmt.Printf("\t[Error] Formatting command to delete database %s: %v\n", database, err)
@@ -95,19 +103,17 @@ func (d *DBIO) connect() error {
 	return err
 }
 
-func Connect(host, database, user, password string) *DBIO {
+func Connect(host, database, user, password string) (*DBIO, error) {
 	// Attempts to connect to sql database. Returns dbio instance.
 	d := NewDBIO(host, database, user, password)
 	err := d.connect()
 	if err != nil {
-		fmt.Printf("\n\t[Error] Incorrect username or password: %v", err)
-		os.Exit(1000)
+		err = fmt.Errorf("\n\t[Error] Incorrect username or password: %v", err)
 	}
 	if err = d.DB.Ping(); err != nil {
-		fmt.Printf("\n\t[Error] Cannot connect to database: %v", err)
-		os.Exit(1001)
+		err = fmt.Errorf("\n\t[Error] Cannot connect to database: %v", err)
 	}
-	return d
+	return d, err
 }
 
 func Ping(host, database, user, password string) bool {
