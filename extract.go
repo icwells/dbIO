@@ -87,16 +87,21 @@ func toSlice(rows *sql.Rows) [][]string {
 	return ret
 }
 
+func (d *DBIO) Execute(cmd string) [][]string {
+	// Executes given cammand
+	rows, err := d.DB.Query(cmd)
+	if err != nil {
+		fmt.Printf("\n\t[Error] Executing '%s': %v", cmd, err)
+	}
+	defer rows.Close()
+	return toSlice(rows)
+}
+
 func (d *DBIO) GetRowsMin(table, column, target string, min int) [][]string {
 	// Returns rows of target columns with column >= key
 	var cmd string
 	cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s >= %d;", target, table, column, min)
-	rows, err := d.DB.Query(cmd)
-	if err != nil {
-		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
-	}
-	defer rows.Close()
-	return toSlice(rows)
+	return d.Execute(cmd)
 }
 
 func addApostrophes(key string) string {
@@ -127,23 +132,13 @@ func (d *DBIO) GetRows(table, column, key, target string) [][]string {
 	} else {
 		cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s = '%s';", target, table, column, key)
 	}
-	rows, err := d.DB.Query(cmd)
-	if err != nil {
-		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
-	}
-	defer rows.Close()
-	return toSlice(rows)
+	return d.Execute(cmd)
 }
 
 func (d *DBIO) EvaluateRows(table, column, op, key, target string) [][]string {
 	// Returns rows of columns where key relates to target via op (>=/=/...)
 	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE %s %s '%s';", target, table, column, op, key)
-	rows, err := d.DB.Query(cmd)
-	if err != nil {
-		fmt.Printf("\n\t[Error] Extracting rows from %s: %v", table, err)
-	}
-	defer rows.Close()
-	return toSlice(rows)
+	return d.Execute(cmd)
 }
 
 func (d *DBIO) GetColumnInt(table, column string) []int {
@@ -188,13 +183,8 @@ func (d *DBIO) GetColumnText(table, column string) []string {
 
 func (d *DBIO) GetColumns(table string, columns []string) [][]string {
 	// Returns slice of slices of all entries in given columns of text
-	sql := fmt.Sprintf("SELECT %s FROM %s;", strings.Join(columns, ","), table)
-	rows, err := d.DB.Query(sql)
-	if err != nil {
-		fmt.Printf("\n\t[Error] Extracting columns from %s: %v", table, err)
-	}
-	defer rows.Close()
-	return toSlice(rows)
+	cmd := fmt.Sprintf("SELECT %s FROM %s;", strings.Join(columns, ","), table)
+	return d.Execute(cmd)
 }
 
 func (d *DBIO) GetNumOccurances(table, column string) map[string]int {
@@ -213,13 +203,8 @@ func (d *DBIO) GetNumOccurances(table, column string) map[string]int {
 
 func (d *DBIO) GetTable(table string) [][]string {
 	// Returns contents of table
-	sql := fmt.Sprintf("SELECT * FROM %s ;", table)
-	rows, err := d.DB.Query(sql)
-	if err != nil {
-		fmt.Printf("\n\t[Error] Extracting %s: %v", table, err)
-	}
-	defer rows.Close()
-	return toSlice(rows)
+	cmd := fmt.Sprintf("SELECT * FROM %s ;", table)
+	return d.Execute(cmd)
 }
 
 func (d *DBIO) GetTableMap(table string) map[string][]string {
