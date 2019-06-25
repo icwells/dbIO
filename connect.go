@@ -8,6 +8,7 @@ import (
 	"github.com/Songmu/prompter"
 	_ "github.com/go-sql-driver/mysql"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -24,7 +25,8 @@ type DBIO struct {
 func NewDBIO(host, database, user, password string) *DBIO {
 	// Returns initialized struct
 	d := new(DBIO)
-	if len(host) > 1 {
+	host = strings.TrimSpace(host)
+	if len(host) < 1 {
 		d.Host = "localhost"
 	} else {
 		d.Host = fmt.Sprintf("tcp(%s:3306)", host)
