@@ -60,7 +60,7 @@ CreateDatabase can be used to initializes a database with a given name (although
 Similarly, ReplaceDatabase will drop an existing database (if it exists) and re-initialize it (for testing).  
 ```
 dbio.CreateDatabase(host, database, user string)  
-dbio.ReplaceDatabase(host, database, user string)  
+dbio.ReplaceDatabase(host, database, user, password string)  
 ```
 
 Additionally, the Ping function can be used to test credentials:  
