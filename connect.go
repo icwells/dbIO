@@ -64,9 +64,9 @@ func CreateDatabase(host, database, user string) *DBIO {
 	return d
 }
 
-func ReplaceDatabase(host, database, user string) *DBIO {
+func ReplaceDatabase(host, database, user, password string) *DBIO {
 	// Deletes database and creates new one (for testing)
-	d, err := Connect(host, "", user, "")
+	d, err := Connect(host, "", user, password)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1000)
