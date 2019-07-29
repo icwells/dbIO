@@ -57,31 +57,10 @@ func wrapApo(v string) string {
 	return v
 }
 
-func (d *DBIO) UpdateRows(table, target string, values map[string][]string) int {
-	// Updates rows where target = key with values (matched to columns)
-	ret := 0
-	for k, v := range values {
-		val := columnEqualTo(d.Columns[table], v)
-		cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s WHERE %s = %s;", table, wrapApo(val), target, wrapApo(k)))
-		if err != nil {
-			d.logger.Printf("[Error] Preparing update for %s: %v\n", table, err)
-		} else {
-			_, err = cmd.Exec()
-			cmd.Close()
-			if err != nil {
-				d.logger.Printf("[Error] Updating row(s) from %s: %v\n", table, err)
-			} else {
-				ret++
-			}
-		}
-	}
-	return ret
-}
-
-func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
-	// Updates single column in table, returns true if successful
+func (d *DBIO) update(table, command string) bool {
+	// Submits update command and returns true if successful
 	ret := true
-	cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, target, wrapApo(value), column, op, wrapApo(key)))
+	cmd, err := d.DB.Prepare(command)
 	if err != nil {
 		d.logger.Printf("[Error] Preparing update for %s: %v\n", table, err)
 		ret = false
@@ -89,11 +68,29 @@ func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
 		_, err = cmd.Exec()
 		cmd.Close()
 		if err != nil {
-			d.logger.Printf("[Error] Updating row from %s: %v\n", table, err)
+			d.logger.Printf("[Error] Updating row(s) from %s: %v\n", table, err)
 			ret = false
 		}
 	}
 	return ret
+}
+
+func (d *DBIO) UpdateRows(table, target string, values map[string][]string) int {
+	// Updates rows where target = key with values (matched to columns)
+	ret := 0
+	for k, v := range values {
+		val := columnEqualTo(d.Columns[table], v)
+		pass := d.update(table, fmt.Sprintf("UPDATE %s SET %s WHERE %s = %s;", table, wrapApo(val), target, wrapApo(k)))
+		if pass == true {
+			ret++
+		}
+	}
+	return ret
+}
+
+func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
+	// Updates single column in table, returns true if successful
+	return d.update(table, fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, target, wrapApo(value), column, op, wrapApo(key)))
 }
 
 func (d *DBIO) DeleteRow(table, column, value string) {
