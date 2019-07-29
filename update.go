@@ -3,7 +3,6 @@
 package dbIO
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 )
@@ -19,34 +18,6 @@ func (d *DBIO) TruncateTable(table string) {
 			d.logger.Printf("[Error] Truncating table %s: %v\n", table, err)
 		}
 	}
-}
-
-func columnEqualTo(columns string, values []string) string {
-	// Matches columns to slice by index, returns empty slice if indeces are not equal
-	first := true
-	col := strings.Split(columns, ",")
-	buffer := bytes.NewBufferString("")
-	if len(values) == len(col) {
-		for idx, i := range values {
-			if len(i) >= 1 {
-				// Concatenate string
-				if first == false {
-					// Write seperating comma
-					buffer.WriteByte(',')
-				}
-				if len(i) >= 1 {
-					// Leave empty fields unchanged
-					buffer.WriteString(col[idx])
-					buffer.WriteByte('=')
-					buffer.WriteByte('\'')
-					buffer.WriteString(i)
-					buffer.WriteByte('\'')
-					first = false
-				}
-			}
-		}
-	}
-	return buffer.String()
 }
 
 func wrapApo(v string) string {
@@ -75,17 +46,14 @@ func (d *DBIO) update(table, command string) bool {
 	return ret
 }
 
-func (d *DBIO) UpdateRows(table, target string, values map[string][]string) int {
-	// Updates rows where target = key with values (matched to columns)
-	ret := 0
+func (d *DBIO) UpdateColumn(table, target, column string, values map[string]string) bool {
+	// Updates column where target = key with value
+	var cmd strings.Builder
+	cmd.WriteString(fmt.Sprintf("UPDATE %s CASE %s", table, target))
 	for k, v := range values {
-		val := columnEqualTo(d.Columns[table], v)
-		pass := d.update(table, fmt.Sprintf("UPDATE %s SET %s WHERE %s = %s;", table, wrapApo(val), target, wrapApo(k)))
-		if pass == true {
-			ret++
-		}
+		cmd.WriteString(fmt.Sprintf(" WHEN '%s' THEN SET '%s' = '%s';", k, column, v))
 	}
-	return ret
+	return d.update(table, cmd.String())
 }
 
 func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {

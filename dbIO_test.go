@@ -7,25 +7,6 @@ import (
 	"testing"
 )
 
-func TestColumnEqualTo(t *testing.T) {
-	// Tests columnEqualTo function (in update.go)
-	values := [][]string{
-		{"1", "Lion", "12"},
-		{"2", "Tiger", ""},
-		{"3", "", "6"},
-		{"Leopard", "5"},
-	}
-	expected := []string{"ID='1',Name='Lion',Age='12'", "ID='2',Name='Tiger'", "ID='3',Age='6'"}
-	for idx, i := range values {
-		actual := columnEqualTo("ID,Name,Age", i)
-		if len(i) != 3 && actual != "" {
-			t.Error("Row with incorrect numebr of columns is not empty.")
-		} else if idx <= 2 && actual != expected[idx] {
-			t.Errorf("Actual row %s is not equal to expected: %s", actual, expected[idx])
-		}
-	}
-}
-
 func TestEscapeChars(t *testing.T) {
 	// Tests escapeChars (in upload.go) function using raw strings
 	matches := []struct {
