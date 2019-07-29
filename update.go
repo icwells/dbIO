@@ -46,12 +46,14 @@ func (d *DBIO) update(table, command string) bool {
 	return ret
 }
 
-func (d *DBIO) UpdateColumn(table, target, column string, values map[string]string) bool {
-	// Updates column where target = key with value
+func (d *DBIO) UpdateRows(table, idcol, column string, values map[string]map[string]string) bool {
+	// Updates column where id column = key with value
 	var cmd strings.Builder
-	cmd.WriteString(fmt.Sprintf("UPDATE %s CASE %s", table, target))
-	for k, v := range values {
-		cmd.WriteString(fmt.Sprintf(" WHEN '%s' THEN SET '%s' = '%s';", k, column, v))
+	cmd.WriteString(fmt.Sprintf("UPDATE %s CASE %s", table, idcol))
+	for key, value := range values {
+		for k, v := range value {
+			cmd.WriteString(fmt.Sprintf(" WHEN '%s' THEN SET '%s' = '%s';", key, k, v))
+		}
 	}
 	return d.update(table, cmd.String())
 }
