@@ -51,10 +51,19 @@ func (d *DBIO) UpdateRows(table, idcol, column string, values map[string]map[str
 	var cmd strings.Builder
 	cmd.WriteString(fmt.Sprintf("UPDATE %s CASE %s", table, idcol))
 	for key, value := range values {
+		first := true
+		cmd.WriteString(fmt.Sprintf(" WHEN '%s' THEN SET", key))
 		for k, v := range value {
-			cmd.WriteString(fmt.Sprintf(" WHEN '%s' THEN SET '%s' = '%s';", key, k, v))
+			if first == false {
+				// Seperate additional elements by commas
+				cmd.WriteByte(',')
+			}
+			cmd.WriteString(fmt.Sprintf(" ('%s' = '%s')", k, v))
+			first = false
 		}
+		cmd.WriteByte(';')
 	}
+	cmd.WriteString("END CASE;")
 	return d.update(table, cmd.String())
 }
 
