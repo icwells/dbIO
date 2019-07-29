@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/Songmu/prompter"
 	_ "github.com/go-sql-driver/mysql"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -20,6 +21,7 @@ type DBIO struct {
 	Password  string
 	Starttime time.Time
 	Columns   map[string]string
+	logger    *log.Logger
 }
 
 func NewDBIO(host, database, user, password string) *DBIO {
@@ -34,6 +36,7 @@ func NewDBIO(host, database, user, password string) *DBIO {
 	d.Database = database
 	d.User = user
 	d.Password = password
+	d.logger = log.New(os.Stderr, "dbIO_Log: ", log.Ldate|log.Ltime)
 	return d
 }
 
@@ -41,11 +44,11 @@ func (d *DBIO) create(database string) {
 	// Creates new database with utf8 charset
 	cmd, err := d.DB.Prepare(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s CHARACTER SET utf8mb4;", database))
 	if err != nil {
-		fmt.Printf("\t[Error] Formatting command to create database %s: %v\n", database, err)
+		d.logger.Printf("[Error] Formatting command to create database %s: %v\n", database, err)
 	} else {
 		_, err = cmd.Exec()
 		if err != nil {
-			fmt.Printf("\t[Error] Creating database %s: %v\n", database, err)
+			d.logger.Printf("[Error] Creating database %s: %v\n", database, err)
 		}
 	}
 }
@@ -54,8 +57,7 @@ func CreateDatabase(host, database, user string) *DBIO {
 	// Connects and creates new database
 	d, err := Connect(host, "", user, "")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1000)
+		d.logger.Fatalln(err)
 	}
 	d.create(database)
 	// Return conneciton to given database
@@ -68,16 +70,15 @@ func ReplaceDatabase(host, database, user, password string) *DBIO {
 	// Deletes database and creates new one (for testing)
 	d, err := Connect(host, "", user, password)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1000)
+		d.logger.Fatalln(err)
 	}
 	cmd, err := d.DB.Prepare(fmt.Sprintf("DROP DATABASE IF EXISTS %s;", database))
 	if err != nil {
-		fmt.Printf("\t[Error] Formatting command to delete database %s: %v\n", database, err)
+		d.logger.Printf("[Error] Formatting command to delete database %s: %v\n", database, err)
 	} else {
 		_, err = cmd.Exec()
 		if err != nil {
-			fmt.Printf("\t[Error] Deleting database %s: %v\n", database, err)
+			d.logger.Printf("[Error] Deleting database %s: %v\n", database, err)
 		} else {
 			d.create(database)
 		}

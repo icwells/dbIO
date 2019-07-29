@@ -12,11 +12,11 @@ func (d *DBIO) TruncateTable(table string) {
 	// Clears all table contents
 	cmd, err := d.DB.Prepare(fmt.Sprintf("TRUNCATE TABLE %s;", table))
 	if err != nil {
-		fmt.Printf("\t[Error] Formatting command to truncate table %s: %v\n", table, err)
+		d.logger.Printf("[Error] Formatting command to truncate table %s: %v\n", table, err)
 	} else {
 		_, err = cmd.Exec()
 		if err != nil {
-			fmt.Printf("\t[Error] Truncating table %s: %v\n", table, err)
+			d.logger.Printf("[Error] Truncating table %s: %v\n", table, err)
 		}
 	}
 }
@@ -64,12 +64,12 @@ func (d *DBIO) UpdateRows(table, target string, values map[string][]string) int 
 		val := columnEqualTo(d.Columns[table], v)
 		cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s WHERE %s = %s;", table, wrapApo(val), target, wrapApo(k)))
 		if err != nil {
-			fmt.Printf("\t[Error] Preparing update for %s: %v\n", table, err)
+			d.logger.Printf("[Error] Preparing update for %s: %v\n", table, err)
 		} else {
 			_, err = cmd.Exec()
 			cmd.Close()
 			if err != nil {
-				fmt.Printf("\t[Error] Updating row(s) from %s: %v\n", table, err)
+				d.logger.Printf("[Error] Updating row(s) from %s: %v\n", table, err)
 			} else {
 				ret++
 			}
@@ -83,13 +83,13 @@ func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
 	ret := true
 	cmd, err := d.DB.Prepare(fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, target, wrapApo(value), column, op, wrapApo(key)))
 	if err != nil {
-		fmt.Printf("\t[Error] Preparing update for %s: %v\n", table, err)
+		d.logger.Printf("[Error] Preparing update for %s: %v\n", table, err)
 		ret = false
 	} else {
 		_, err = cmd.Exec()
 		cmd.Close()
 		if err != nil {
-			fmt.Printf("\t[Error] Updating row from %s: %v\n", table, err)
+			d.logger.Printf("[Error] Updating row from %s: %v\n", table, err)
 			ret = false
 		}
 	}
@@ -100,12 +100,12 @@ func (d *DBIO) DeleteRow(table, column, value string) {
 	// Deletes row(s) from database where column name = given value
 	cmd, err := d.DB.Prepare(fmt.Sprintf("DELETE FROM %s WHERE %s = '%s';", table, column, value))
 	if err != nil {
-		fmt.Printf("\t[Error] Preparing deletion from %s: %v\n", table, err)
+		d.logger.Printf("[Error] Preparing deletion from %s: %v\n", table, err)
 	} else {
 		_, err = cmd.Exec()
 		cmd.Close()
 		if err != nil {
-			fmt.Printf("\t[Error] Deleting row(s) from %s: %v\n", table, err)
+			d.logger.Printf("[Error] Deleting row(s) from %s: %v\n", table, err)
 		}
 	}
 }

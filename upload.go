@@ -18,13 +18,13 @@ func (d *DBIO) UpdateDB(table, values string, l int) int {
 	//(values must be formatted for single/multiple rows before calling function)
 	cmd, err := d.DB.Prepare(fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, d.Columns[table], values))
 	if err != nil {
-		fmt.Printf("\t[Error] Formatting command for upload to %s: %v\n", table, err)
+		d.logger.Printf("[Error] Formatting command for upload to %s: %v\n", table, err)
 		return 0
 	}
 	_, err = cmd.Exec()
 	cmd.Close()
 	if err != nil {
-		fmt.Printf("\t[Error] Uploading to %s: %v\n", table, err)
+		d.logger.Printf("[Error] Uploading to %s: %v\n", table, err)
 		return 0
 	}
 	fmt.Printf("\tUploaded %d rows to %s.\n", l, table)
@@ -123,16 +123,6 @@ func FormatSlice(data [][]string) (string, int) {
 	return buffer.String(), count
 }
 
-func openFile(file string) *os.File {
-	// Returns file stream, exits if it encounters an error
-	f, err := os.Open(file)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "\n\t[ERROR] Reading %s: %v\n\n", file, err)
-		os.Exit(10)
-	}
-	return f
-}
-
 func (d *DBIO) columnMap(rows *sql.Rows) {
 	// Converts sql query result to map of strings
 	columns, _ := rows.Columns()
@@ -159,7 +149,7 @@ func (d *DBIO) GetTableColumns() {
 WHERE table_schema = DATABASE() GROUP BY table_name ORDER BY table_name;`
 	rows, err := d.DB.Query(cmd)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "\n\t[ERROR] Extracting table and column names: %v\n\n", err)
+		d.logger.Printf("[ERROR] Extracting table and column names: %v\n\n", err)
 	}
 	defer rows.Close()
 	d.columnMap(rows)
@@ -169,7 +159,10 @@ func (d *DBIO) ReadColumns(infile string) {
 	// Build map of column statements with types
 	d.Columns = make(map[string]string)
 	var table string
-	f := openFile(infile)
+	f, err := os.Open(infile)
+	if err != nil {
+		d.logger.Fatalf("[ERROR] Reading %s: %v\n\n", infile, err)
+	}
 	defer f.Close()
 	input := bufio.NewScanner(f)
 	for input.Scan() {
@@ -199,8 +192,7 @@ func (d *DBIO) NewTables(infile string) {
 		cmd := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s(%s);", k, v)
 		_, err := d.DB.Exec(cmd)
 		if err != nil {
-			fmt.Printf("\t[Error] Creating table %s. %v\n\n", k, err)
-			os.Exit(1)
+			d.logger.Fatalf("[Error] Creating table %s. %v\n\n", k, err)
 		}
 	}
 }

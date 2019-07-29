@@ -15,7 +15,7 @@ func (d *DBIO) getCount(table, cmd string) int {
 	val := d.DB.QueryRow(cmd)
 	err := val.Scan(&n)
 	if err != nil {
-		fmt.Printf("\n\t[Error] Counting entries from %s: %v\n\n", table, err)
+		d.logger.Printf("[Error] Counting entries from %s: %v\n\n", table, err)
 	}
 	return n
 }
@@ -55,7 +55,7 @@ func (d *DBIO) GetMax(table, column string) int {
 		val := d.DB.QueryRow(cmd)
 		err := val.Scan(&m)
 		if err != nil {
-			fmt.Printf("\n\t[Error] Determining maximum value from %s in %s: %v\n\n", column, table, err)
+			d.logger.Printf("[Error] Determining maximum value from %s in %s: %v\n\n", column, table, err)
 		}
 	} else {
 		m = n
@@ -91,7 +91,7 @@ func (d *DBIO) Execute(cmd string) [][]string {
 	// Executes given cammand
 	rows, err := d.DB.Query(cmd)
 	if err != nil {
-		fmt.Printf("\n\t[Error] Executing '%s': %v", cmd, err)
+		d.logger.Printf("[Error] Executing '%s': %v", cmd, err)
 	}
 	defer rows.Close()
 	return toSlice(rows)
@@ -147,14 +147,14 @@ func (d *DBIO) GetColumnInt(table, column string) []int {
 	sql := fmt.Sprintf("SELECT %s FROM %s;", column, table)
 	rows, err := d.DB.Query(sql)
 	if err != nil {
-		fmt.Printf("\n\t[Error] Extracting %s column from %s: %v", column, table, err)
+		d.logger.Printf("[Error] Extracting %s column from %s: %v", column, table, err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var val int
 		// Assign data to val while checking err
 		if err := rows.Scan(&val); err != nil {
-			fmt.Printf("\n\t[Error] Reading %s from %s: %v", column, table, err)
+			d.logger.Printf("[Error] Reading %s from %s: %v", column, table, err)
 		}
 		col = append(col, val)
 	}
@@ -167,14 +167,14 @@ func (d *DBIO) GetColumnText(table, column string) []string {
 	sql := fmt.Sprintf("SELECT %s FROM %s;", column, table)
 	rows, err := d.DB.Query(sql)
 	if err != nil {
-		fmt.Printf("\n\t[Error] Extracting %s column from %s: %v", column, table, err)
+		d.logger.Printf("[Error] Extracting %s column from %s: %v", column, table, err)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var val string
 		// Assign data to val while checking err
 		if err := rows.Scan(&val); err != nil {
-			fmt.Printf("\n\t[Error] Reading %s from %s: %v", column, table, err)
+			d.logger.Printf("[Error] Reading %s from %s: %v", column, table, err)
 		}
 		col = append(col, val)
 	}
