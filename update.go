@@ -20,14 +20,6 @@ func (d *DBIO) TruncateTable(table string) {
 	}
 }
 
-func wrapApo(v string) string {
-	// Wraps calls escapeChars and v in appstrophes
-	if strings.Count(v, " ") > 0 {
-		return fmt.Sprintf("'%s'", escapeChars(v))
-	}
-	return v
-}
-
 func (d *DBIO) update(table, command string) bool {
 	// Submits update command and returns true if successful
 	ret := true
@@ -69,7 +61,7 @@ func (d *DBIO) UpdateColumns(table, idcol, column string, values map[string]map[
 
 func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
 	// Updates single column in table, returns true if successful
-	return d.update(table, fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, target, wrapApo(value), column, op, wrapApo(key)))
+	return d.update(table, fmt.Sprintf("UPDATE %s SET %s = '%s' WHERE %s %s '%s';", table, target, value, column, op, key))
 }
 
 func (d *DBIO) DeleteRow(table, column, value string) {
