@@ -46,24 +46,24 @@ func (d *DBIO) update(table, command string) bool {
 	return ret
 }
 
-func (d *DBIO) UpdateRows(table, idcol, column string, values map[string]map[string]string) bool {
+func (d *DBIO) UpdateColumns(table, idcol, column string, values map[string]map[string]string) bool {
 	// Updates column where id column = key with value
 	var cmd strings.Builder
-	cmd.WriteString(fmt.Sprintf("UPDATE %s CASE %s", table, idcol))
+	first := true
+	cmd.WriteString(fmt.Sprintf("UPDATE %s SET", table))
 	for key, value := range values {
-		first := true
-		cmd.WriteString(fmt.Sprintf(" WHEN '%s' THEN SET", key))
-		for k, v := range value {
-			if first == false {
-				// Seperate additional elements by commas
-				cmd.WriteByte(',')
-			}
-			cmd.WriteString(fmt.Sprintf(" ('%s' = '%s')", k, v))
-			first = false
+		if first == false {
+			// Seperate columns by comma
+			cmd.WriteByte(',')
 		}
-		cmd.WriteByte(';')
+		cmd.WriteString(fmt.Sprintf("\n%s = CASE\n", key))
+		for k, v := range value {
+			cmd.WriteString(fmt.Sprintf("\tWHEN %s='%s' THEN '%s'\n", idcol, k, v))
+		}
+		cmd.WriteString(fmt.Sprintf("ELSE %s END", key))
+		first = false
 	}
-	cmd.WriteString("END CASE;")
+	cmd.WriteString(fmt.Sprintf("\nWHERE %s IS NOT NULL;", idcol))
 	return d.update(table, cmd.String())
 }
 
