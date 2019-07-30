@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.com/icwells/dbIO.svg?branch=master)](https://travis-ci.com/icwells/dbIO)
 
 # dbIO is a lightweight, straightforward MySQL interface written in Go.  
-This script is still (somewhat) under developement, but is more or less ready for use.  
+These scripts are still under developement, but are available for use.  
 
 Copyright 2018 by Shawn Rupp
 
@@ -154,9 +154,9 @@ Give operator, key, and target as emtpy strings to count without evaluating.
 
 ### Updating and deleting  
 
-#### DBIO.UpdateRows(table, target string, values map[string][]string) int 
-Updates rows where target == map key with map values (automatically matched to columns). 
-Returns number of rows updated.  
+#### DBIO.UpdateColumns(table, column string, values map[string]map[string][]string) bool 
+Updates columns (specified as outer map key) in table where column == inner map key with map values. 
+Returns true if successful.  
 
 #### DBIO.UpdateRow(table, column, value, target, op, key string) bool  
 Updates single column in table, where target relates to key via operator. Returns true if successful.  

@@ -38,7 +38,7 @@ func (d *DBIO) update(table, command string) bool {
 	return ret
 }
 
-func (d *DBIO) UpdateColumns(table, idcol, column string, values map[string]map[string]string) bool {
+func (d *DBIO) UpdateColumns(table, idcol string, values map[string]map[string]string) bool {
 	// Updates column where id column = key with value
 	var cmd strings.Builder
 	first := true
