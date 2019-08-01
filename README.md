@@ -161,8 +161,11 @@ Returns true if successful.
 #### DBIO.UpdateRow(table, column, value, target, op, key string) bool  
 Updates single column in table, where target relates to key via operator. Returns true if successful.  
 
+#### DBIO.DeleteRow(table, column, values []string)  
+Deletes rows from database where column value is in values slice.  
+
 #### DBIO.DeleteRow(table, column, value string)  
-Deletes row(s) from database where column name == given value.  
+Deletes single row from database where column name == given value.  
 
 #### DBIO.TruncateTable(table string)  
 Clears all table contents (for re-creating summary tables....).  

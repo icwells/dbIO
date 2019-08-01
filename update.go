@@ -64,9 +64,9 @@ func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
 	return d.update(table, fmt.Sprintf("UPDATE %s SET %s = '%s' WHERE %s %s '%s';", table, target, value, column, op, key))
 }
 
-func (d *DBIO) DeleteRow(table, column, value string) {
-	// Deletes row(s) from database where column name = given value
-	cmd, err := d.DB.Prepare(fmt.Sprintf("DELETE FROM %s WHERE %s = '%s';", table, column, value))
+func (d *DBIO) deleteEntries(table, command string) {
+	// Performs given deletion command
+	cmd, err := d.DB.Prepare(command)
 	if err != nil {
 		d.logger.Printf("[Error] Preparing deletion from %s: %v\n", table, err)
 	} else {
@@ -76,4 +76,25 @@ func (d *DBIO) DeleteRow(table, column, value string) {
 			d.logger.Printf("[Error] Deleting row(s) from %s: %v\n", table, err)
 		}
 	}
+}
+
+func (d *DBIO) DeleteRows(table, column string, values []string) {
+	// Deletes rows from database where column value in values
+	var b strings.Builder
+	first := true
+	for _, i := range values {
+		if first == false {
+			b.WriteByte(',')
+		}
+		b.WriteByte('\'')
+		b.WriteString(i)
+		b.WriteByte('\'')
+		first = false
+	}
+	d.deleteEntries(table, fmt.Sprintf("DELETE FROM %s WHERE %s IN (%s);", table, column, b.String()))
+}
+
+func (d *DBIO) DeleteRow(table, column, value string) {
+	// Deletes row from database where column name = given value
+	d.deleteEntries(table, fmt.Sprintf("DELETE FROM %s WHERE %s = '%s';", table, column, value))
 }
