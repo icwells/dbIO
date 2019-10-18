@@ -5,6 +5,7 @@ package dbIO
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 func (d *DBIO) TruncateTable(table string) {
@@ -18,6 +19,34 @@ func (d *DBIO) TruncateTable(table string) {
 			d.logger.Printf("[Error] Truncating table %s: %v\n", table, err)
 		}
 	}
+}
+
+func (d *DBIO) GetUpdateTimes() map[string]time.Time {
+	// Returns map of table names and the date and time of last update
+	ret := make(map[string]time.Time)
+	for k := range d.Columns {
+		cmd := fmt.Sprintf("SELECT UPDATE_TIME FROM information_schema.tables WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';", d.Database, k)
+		rows := d.Execute(cmd)
+		t, err := time.Parse("2019-10-15 14:42:36", rows[0][0])
+		if err == nil {
+			ret[k] = t
+		} else {
+			d.logger.Printf("[Error] Converting timestamp %s: %v\n", rows[0][0], err)
+		}
+	}
+	return ret
+}
+
+func (d *DBIO) LastUpdate() time.Time {
+	// Returns time of latest update
+	var ret time.Time
+	t := d.GetUpdateTimes()
+	for _, v := range t {
+		if ret.IsZero() || v.After(ret) {
+			ret = v
+		}
+	}
+	return ret
 }
 
 func (d *DBIO) update(table, command string) bool {
