@@ -27,7 +27,8 @@ func (d *DBIO) GetUpdateTimes() map[string]time.Time {
 	for k := range d.Columns {
 		cmd := fmt.Sprintf("SELECT UPDATE_TIME FROM information_schema.tables WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';", d.Database, k)
 		rows := d.Execute(cmd)
-		t, err := time.Parse("2019-10-15 14:42:36", rows[0][0])
+		// "2019-10-15 14:42:36"
+		t, err := time.Parse(time.RFC3339, rows[0][0])
 		if err == nil {
 			ret[k] = t
 		} else {
@@ -42,7 +43,7 @@ func (d *DBIO) LastUpdate() time.Time {
 	var ret time.Time
 	t := d.GetUpdateTimes()
 	for _, v := range t {
-		if ret.IsZero() || v.After(ret) {
+		if v.After(ret) {
 			ret = v
 		}
 	}
