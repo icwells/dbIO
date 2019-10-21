@@ -115,10 +115,10 @@ It returns an integer (rather than a boolean) so multiple results can be tallied
 ### Extracting from a database  
 
 #### DBIO.GetUpdateTimes() map[string]time.Time  
-Returns map of table names and the date and time of last update.  
+Returns map of table names and the date and time of last update. MySQL does not store time zomes, so the time zone will be assumed to be UTC.  
 
 #### DBIO.LastUpdate() time.Time  
-Returns time of latest update to any table.  
+Returns time of latest update to any table. MySQL does not store time zomes, so the time zone will be assumed to be UTC.  
 
 #### DBIO.GetTable(table string) [][]string  
 Returns contents of a given table as a slice of string slices.  
