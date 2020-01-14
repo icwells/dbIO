@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
+// TruncateTable clears all content from the given table.
 func (d *DBIO) TruncateTable(table string) {
-	// Clears all table contents
 	cmd, err := d.DB.Prepare(fmt.Sprintf("TRUNCATE TABLE %s;", table))
 	if err != nil {
 		d.logger.Printf("[Error] Formatting command to truncate table %s: %v\n", table, err)
@@ -21,8 +21,8 @@ func (d *DBIO) TruncateTable(table string) {
 	}
 }
 
+// GetUpdateTimes returns a map the last update date and time for each table.
 func (d *DBIO) GetUpdateTimes() map[string]time.Time {
-	// Returns map of table names and the date and time of last update
 	ret := make(map[string]time.Time)
 	for k := range d.Columns {
 		cmd := fmt.Sprintf("SELECT UPDATE_TIME FROM information_schema.tables WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';", d.Database, k)
@@ -39,8 +39,8 @@ func (d *DBIO) GetUpdateTimes() map[string]time.Time {
 	return ret
 }
 
+// LastUpdate returns the time of the most recent update.
 func (d *DBIO) LastUpdate() time.Time {
-	// Returns time of latest update
 	var ret time.Time
 	t := d.GetUpdateTimes()
 	for _, v := range t {
@@ -51,8 +51,8 @@ func (d *DBIO) LastUpdate() time.Time {
 	return ret
 }
 
+// Submits update command and returns true if successful
 func (d *DBIO) update(table, command string) bool {
-	// Submits update command and returns true if successful
 	ret := true
 	cmd, err := d.DB.Prepare(command)
 	if err != nil {
@@ -69,8 +69,8 @@ func (d *DBIO) update(table, command string) bool {
 	return ret
 }
 
+// UpdateColumns updates columns (specified as outer map key) in table where column == inner map key with map values. Returns true if successful.
 func (d *DBIO) UpdateColumns(table, idcol string, values map[string]map[string]string) bool {
-	// Updates column where id column = key with value
 	var cmd strings.Builder
 	first := true
 	cmd.WriteString(fmt.Sprintf("UPDATE %s SET", table))
@@ -90,13 +90,13 @@ func (d *DBIO) UpdateColumns(table, idcol string, values map[string]map[string]s
 	return d.update(table, cmd.String())
 }
 
+// UpdateRow updates a single column in the given table and returns true if successful.
 func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
-	// Updates single column in table, returns true if successful
 	return d.update(table, fmt.Sprintf("UPDATE %s SET %s = '%s' WHERE %s %s '%s';", table, target, value, column, op, key))
 }
 
+// Performs given deletion command
 func (d *DBIO) deleteEntries(table, command string) {
-	// Performs given deletion command
 	cmd, err := d.DB.Prepare(command)
 	if err != nil {
 		d.logger.Printf("[Error] Preparing deletion from %s: %v\n", table, err)
@@ -109,8 +109,8 @@ func (d *DBIO) deleteEntries(table, command string) {
 	}
 }
 
+// DeleteRows deletes rows from the database if the value in the given column is contained in the values slice.
 func (d *DBIO) DeleteRows(table, column string, values []string) {
-	// Deletes rows from database where column value in values
 	var b strings.Builder
 	first := true
 	for _, i := range values {
@@ -125,7 +125,7 @@ func (d *DBIO) DeleteRows(table, column string, values []string) {
 	d.deleteEntries(table, fmt.Sprintf("DELETE FROM %s WHERE %s IN (%s);", table, column, b.String()))
 }
 
+// DeleteRow deletes a single row from the database where the value in the given column equals value.
 func (d *DBIO) DeleteRow(table, column, value string) {
-	// Deletes row from database where column name = given value
 	d.deleteEntries(table, fmt.Sprintf("DELETE FROM %s WHERE %s = '%s';", table, column, value))
 }

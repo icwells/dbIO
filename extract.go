@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
+// Returns integer from query
 func (d *DBIO) getCount(table, cmd string) int {
-	// Returns integer from query
 	var n int
 	val := d.DB.QueryRow(cmd)
 	err := val.Scan(&n)
@@ -20,8 +20,10 @@ func (d *DBIO) getCount(table, cmd string) int {
 	return n
 }
 
+// Count returns count of entries from target column(s) in table where key relates to column via op (>=/=/...; ie. column >= 7).
+// Returns total if distinct is false; returns number of unique entries if distinct is true.
+// Give operator, key, and target as emtpy strings to count without evaluating.
 func (d *DBIO) Count(table, column, target, op, key string, distinct bool) int {
-	// Returns count of entries from table column where key relates to target via op (>=/=/...)
 	var cmd string
 	if distinct == true {
 		cmd = fmt.Sprintf("SELECT COUNT(DISTINCT %s) FROM %s", target, table)
@@ -40,14 +42,14 @@ func (d *DBIO) Count(table, column, target, op, key string, distinct bool) int {
 	return d.getCount(table, cmd)
 }
 
+// CountRows returns the number of rows from the given table.
 func (d *DBIO) CountRows(table string) int {
-	// Returns number of rows from table
 	cmd := fmt.Sprintf("SELECT COUNT(*) FROM %s;", table)
 	return d.getCount(table, cmd)
 }
 
+// GetMax returns the highest number from the given column.
 func (d *DBIO) GetMax(table, column string) int {
-	// Returns maximum number from given column
 	var m int
 	n := d.CountRows(table)
 	if n > 0 {
@@ -63,8 +65,8 @@ func (d *DBIO) GetMax(table, column string) int {
 	return m
 }
 
+// Returns rows of uncertain length as slice of string slices
 func toSlice(rows *sql.Rows) [][]string {
-	// Returns rows of uncertain length as slice of string slices
 	var ret [][]string
 	columns, _ := rows.Columns()
 	count := len(columns)
@@ -87,8 +89,8 @@ func toSlice(rows *sql.Rows) [][]string {
 	return ret
 }
 
+// Execute submits the given command as a MySQL query.
 func (d *DBIO) Execute(cmd string) [][]string {
-	// Executes given cammand
 	rows, err := d.DB.Query(cmd)
 	if err != nil {
 		d.logger.Printf("[Error] Executing '%s': %v", cmd, err)
@@ -97,15 +99,15 @@ func (d *DBIO) Execute(cmd string) [][]string {
 	return toSlice(rows)
 }
 
+// GetRowsMin returns all rows of target columns where column >= key.
 func (d *DBIO) GetRowsMin(table, column, target string, min int) [][]string {
-	// Returns rows of target columns with column >= key
 	var cmd string
 	cmd = fmt.Sprintf("SELECT %s FROM %s WHERE %s >= %d;", target, table, column, min)
 	return d.Execute(cmd)
 }
 
+// Wraps terms in apostrophes to avoid errors
 func addApostrophes(key string) string {
-	// Wraps terms in apostrophes to avoid errors
 	s := strings.Split(key, ",")
 	buffer := bytes.NewBufferString("")
 	for idx, i := range s {
@@ -120,8 +122,8 @@ func addApostrophes(key string) string {
 	return buffer.String()
 }
 
+// GetRows returns rows of target columns with key in column.
 func (d *DBIO) GetRows(table, column, key, target string) [][]string {
-	// Returns rows of target columns with key in column
 	var cmd string
 	if strings.Contains(key, ",") == true {
 		// Format for list
@@ -135,14 +137,14 @@ func (d *DBIO) GetRows(table, column, key, target string) [][]string {
 	return d.Execute(cmd)
 }
 
+// EvaluateRows returns rows of columns where key relates to target via op (>=/=/...) (i.e. column <= key).
 func (d *DBIO) EvaluateRows(table, column, op, key, target string) [][]string {
-	// Returns rows of columns where key relates to target via op (>=/=/...)
 	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE %s %s '%s';", target, table, column, op, key)
 	return d.Execute(cmd)
 }
 
+// GetColumnInt returns a slice of all entries in column of integers.
 func (d *DBIO) GetColumnInt(table, column string) []int {
-	// Returns slice of all entries in column of integers
 	var col []int
 	sql := fmt.Sprintf("SELECT %s FROM %s;", column, table)
 	rows, err := d.DB.Query(sql)
@@ -161,8 +163,8 @@ func (d *DBIO) GetColumnInt(table, column string) []int {
 	return col
 }
 
+// GetColumnText returns a slice of all entries in column of text.
 func (d *DBIO) GetColumnText(table, column string) []string {
-	// Returns slice of all entries in column of text
 	var col []string
 	sql := fmt.Sprintf("SELECT %s FROM %s;", column, table)
 	rows, err := d.DB.Query(sql)
@@ -181,14 +183,14 @@ func (d *DBIO) GetColumnText(table, column string) []string {
 	return col
 }
 
+// GetColumns returns a slice of slices of all entries in given columns.
 func (d *DBIO) GetColumns(table string, columns []string) [][]string {
-	// Returns slice of slices of all entries in given columns of text
 	cmd := fmt.Sprintf("SELECT %s FROM %s;", strings.Join(columns, ","), table)
 	return d.Execute(cmd)
 }
 
+// GetNumOccurances returns a map with the number of unique entries in column.
 func (d *DBIO) GetNumOccurances(table, column string) map[string]int {
-	// Returns map with number of unique entries in column
 	occ := make(map[string]int)
 	entries := d.GetColumnText(table, column)
 	for _, i := range entries {
@@ -201,14 +203,14 @@ func (d *DBIO) GetNumOccurances(table, column string) map[string]int {
 	return occ
 }
 
+// GetTable returns all contents of the given table.
 func (d *DBIO) GetTable(table string) [][]string {
-	// Returns contents of table
 	cmd := fmt.Sprintf("SELECT * FROM %s ;", table)
 	return d.Execute(cmd)
 }
 
+// GetTableMap returns the given table as a map with the first column as the key.
 func (d *DBIO) GetTableMap(table string) map[string][]string {
-	// Returns table as a map with id as the key
 	tbl := make(map[string][]string)
 	s := d.GetTable(table)
 	for _, i := range s {

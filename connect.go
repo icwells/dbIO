@@ -13,19 +13,27 @@ import (
 	"time"
 )
 
+// DBIO is the central struct containing all releveant connection information.
 type DBIO struct {
-	DB        *sql.DB
-	Host      string
-	Database  string
-	User      string
-	Password  string
+	// DB is the database connection. Any SQL query can be run directly using DB.
+	DB *sql.DB
+	// Host is the host IP.
+	Host string
+	// Databse stores the name of the database.
+	Database string
+	// User is the MySQL user name used in this session.
+	User string
+	// Password stoers the user's password. It is not secure, so be careful how you use it.
+	Password string
+	// Starttime is the time point after the password is given.
 	Starttime time.Time
-	Columns   map[string]string
-	logger    *log.Logger
+	// Columns stores a map with a comma-seperated string of column name for each table.
+	Columns map[string]string
+	logger  *log.Logger
 }
 
+// NewDBIO returns an initialized struct. If host is left blank, it will default to localHost.
 func NewDBIO(host, database, user, password string) *DBIO {
-	// Returns initialized struct
 	d := new(DBIO)
 	host = strings.TrimSpace(host)
 	if len(host) < 1 {
@@ -40,8 +48,8 @@ func NewDBIO(host, database, user, password string) *DBIO {
 	return d
 }
 
+// Creates new database with utf8 charset
 func (d *DBIO) create(database string) {
-	// Creates new database with utf8 charset
 	cmd, err := d.DB.Prepare(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s CHARACTER SET utf8mb4;", database))
 	if err != nil {
 		d.logger.Printf("[Error] Formatting command to create database %s: %v\n", database, err)
@@ -53,8 +61,8 @@ func (d *DBIO) create(database string) {
 	}
 }
 
+// CreateDatabase connects to MySQL and creates a new database.
 func CreateDatabase(host, database, user string) *DBIO {
-	// Connects and creates new database
 	d, err := Connect(host, "", user, "")
 	if err != nil {
 		d.logger.Fatalln(err)
@@ -66,8 +74,8 @@ func CreateDatabase(host, database, user string) *DBIO {
 	return d
 }
 
+// ReplaceDatabase deletes the given database and creates a new, empty, one (for testing).
 func ReplaceDatabase(host, database, user, password string) *DBIO {
-	// Deletes database and creates new one (for testing)
 	d, err := Connect(host, "", user, password)
 	if err != nil {
 		d.logger.Fatalln(err)
@@ -89,8 +97,8 @@ func ReplaceDatabase(host, database, user, password string) *DBIO {
 	return d
 }
 
+// Connects to database
 func (d *DBIO) connect() error {
-	// Connects to database
 	var err error
 	if d.User != "guest" && len(d.Password) < 1 {
 		// Prompt for password
@@ -107,8 +115,8 @@ func (d *DBIO) connect() error {
 	return err
 }
 
+// Connect attempts to connect to the MySQL database located at host/database using the given user name and password.
 func Connect(host, database, user, password string) (*DBIO, error) {
-	// Attempts to connect to sql database. Returns dbio instance.
 	d := NewDBIO(host, database, user, password)
 	err := d.connect()
 	if err != nil {
@@ -120,8 +128,8 @@ func Connect(host, database, user, password string) (*DBIO, error) {
 	return d, err
 }
 
+// Ping returns true if the given credentials are valid, and discards the connection.
 func Ping(host, database, user, password string) bool {
-	// Returns true if credentials are valid, discards connection
 	ret := false
 	d := NewDBIO(host, database, user, password)
 	err := d.connect()
