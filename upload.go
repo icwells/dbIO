@@ -13,9 +13,8 @@ import (
 	"unicode/utf8"
 )
 
+// UpdateDB adds new rows to table. Values must be formatted using FormatMap or FormatSlice.
 func (d *DBIO) UpdateDB(table, values string, l int) int {
-	// Adds new rows to table
-	//(values must be formatted for single/multiple rows before calling function)
 	cmd, err := d.DB.Prepare(fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, d.Columns[table], values))
 	if err != nil {
 		d.logger.Printf("[Error] Formatting command for upload to %s: %v\n", table, err)
@@ -31,8 +30,8 @@ func (d *DBIO) UpdateDB(table, values string, l int) int {
 	return 1
 }
 
+// Returns value with any reserved characters escaped and standarizes NAs.
 func escapeChars(v string) string {
-	// Returns value with any reserved characters escaped and standarizes NAs
 	chars := []string{"'", "\"", "_"}
 	na := []string{" na ", " Na ", "N/A"}
 	// Reset backslashes to dashes
@@ -59,8 +58,8 @@ func escapeChars(v string) string {
 	return v
 }
 
+// Returns valid string for upload to database.
 func validateString(v string) string {
-	// Returns valid string for upload to database
 	if _, err := strconv.Atoi(v); err != nil {
 		// Avoid assigning NA to numerical value
 		if utf8.ValidString(v) == false || strings.Contains(v, `\xEF\xBF\xBD`) == true {
@@ -70,8 +69,8 @@ func validateString(v string) string {
 	return escapeChars(v)
 }
 
+// FormatMap converts a map of string slices to a string formatted with parentheses, commas, and appostrophe's where needed. Returns the number of rows formatted.
 func FormatMap(data map[string][]string) (string, int) {
-	// Formats a map of string slices for upload
 	buffer := bytes.NewBufferString("")
 	first := true
 	count := 0
@@ -99,6 +98,7 @@ func FormatMap(data map[string][]string) (string, int) {
 	return buffer.String(), count
 }
 
+// FormatSlice converts a two-dimensional string slice to a string formatted with parentheses, commas, and appostrophe's where needed. Returns the number of rows formatted.
 func FormatSlice(data [][]string) (string, int) {
 	// Organizes input data into n rows for upload
 	buffer := bytes.NewBufferString("")
@@ -123,8 +123,8 @@ func FormatSlice(data [][]string) (string, int) {
 	return buffer.String(), count
 }
 
+// Converts sql query result to map of strings.
 func (d *DBIO) columnMap(rows *sql.Rows) {
-	// Converts sql query result to map of strings
 	columns, _ := rows.Columns()
 	count := len(columns)
 	values := make([]interface{}, count)
@@ -142,8 +142,8 @@ func (d *DBIO) columnMap(rows *sql.Rows) {
 	}
 }
 
+// GetTableColumns extracts table and column names from the database and stores them in the Columns map.
 func (d *DBIO) GetTableColumns() {
-	// Extracts table and column names from database and stores in Columns map
 	d.Columns = make(map[string]string)
 	cmd := `SELECT table_name,GROUP_CONCAT(column_name ORDER BY ordinal_position) FROM information_schema.columns 
 WHERE table_schema = DATABASE() GROUP BY table_name ORDER BY table_name;`
@@ -155,8 +155,8 @@ WHERE table_schema = DATABASE() GROUP BY table_name ORDER BY table_name;`
 	d.columnMap(rows)
 }
 
+// ReadColumns builds a map of column statements with types from infile. See README for infile formatting.
 func (d *DBIO) ReadColumns(infile string) {
-	// Build map of column statements with types
 	d.Columns = make(map[string]string)
 	var table string
 	f, err := os.Open(infile)
@@ -184,8 +184,8 @@ func (d *DBIO) ReadColumns(infile string) {
 	}
 }
 
+// NewTables initializes new tables form infile. See README for infile formatting.
 func (d *DBIO) NewTables(infile string) {
-	// Initializes new tables
 	fmt.Println("\n\tInitializing new tables...")
 	d.ReadColumns(infile)
 	for k, v := range d.Columns {

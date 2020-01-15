@@ -9,7 +9,6 @@ Copyright 2018 by Shawn Rupp
 2. [Usage](#usage)  
 3. [Uploading](#uploading-to-a-database)  
 4. [Extracting](#extracting-from-a-database)  
-5. [Update/Delete](#updating-and-deleting)  
 
 ## Dependencies:  
 
@@ -33,7 +32,8 @@ dbIO uses iotools to read in database schema template file.
 	go get github.com/icwells/dbIO  
 
 ## Usage  
-dbIO stores relevant connection in a DBIO struct which is returned the Connect function.  
+dbIO stores relevant connection in a DBIO struct which is returned by the Connect function. Below are some examples of usage. 
+See the GoDocs page for a comprehensive list.  
 
 ### Connect and the DBIO struct  
 	dbIO.Connect(host, database, user, password string) *DBIO  
@@ -51,9 +51,6 @@ Password  string
 Starttime time.Time  
 Columns   map[string]string  
 ```
-DB is the database connection, while database stores the database name and host stores the IP (defaults to localhost if left empty). 
-User is the user name, and Starttime is the time point after the password is given. Lastly, columns stores a map with a comma-seperated string of column 
-name for each table. While methods for many common operations are provided in this package, any SQL query can be run directly using DB.  
 
 #### Creating/Replacing Databases  
 CreateDatabase can be used to initializes a database with a given name (although NewTables must be called to initialize the tables within the databse).  
@@ -104,7 +101,7 @@ becomes
 ```
 "('5','Apple'),('3','Orange')"  
 ```
-They both return a string of the data and an integer of the number rows that were formatted. Both are stand-alone functions and do not use a DBIO object.  
+They both return a string of the data and an integer of the number rows that were formatted. Both are stand-alone functions and do not use a DBIO struct.  
 The input data should contian the same number of columns as the table is to be uploaded to. (Map keys are not included in the upload.)  
 
 #### DBIO.UpdateDB(table, values string, l int) int  
@@ -114,64 +111,9 @@ It returns an integer (rather than a boolean) so multiple results can be tallied
 
 ### Extracting from a database  
 
-#### DBIO.GetUpdateTimes() map[string]time.Time  
-Returns map of table names and the date and time of last update. MySQL does not store time zomes, so the time zone will be assumed to be UTC.  
-
-#### DBIO.LastUpdate() time.Time  
-Returns time of latest update to any table. MySQL does not store time zomes, so the time zone will be assumed to be UTC.  
-
-#### DBIO.GetTable(table string) [][]string  
-Returns contents of a given table as a slice of string slices.  
-
-#### DBIO.GetTableMap(table string) map[string][]string  
-Returns contents of a given table as a map with the first column as the key.  
-
-#### DBIO.GetNumOccurances(table, column string) map[string]int  
-Returns a map with number of unique entries in the given column of the table.  
-
-#### DBIO.GetColumns(table string, columns []string) [][]string  
-Returns slice of string slices of all entries in given columns.  
-
-#### DBIO.GetColumnText(table, column string) []string  
-Returns a string slice of all entries in column.  
-
-#### DBIO.GetColumnInt(table, column string) []int  
-Returns an integer slice of all entries in column.  
-
 #### DBIO.GetRows(table, column, key, target string) [][]string  
-Returns rows of target columns with key in column. Use "*" for target to select entire row.  
+Returns rows of target columns with key in column. Use "*" for target to select entire row or a comma seperated string of column names for multiple columns.  
 
 #### DBIOEvaluateRows(table, column, op, key, target string) [][]string  
-Returns rows of target column(s) where key relates to column via given operator (>=/=/...; ie. column >= 7).  
+Returns rows of target column(s) same as GetRows, except it compares key to the column value using the given operator (>=/=/...; ie. column >= 7).  
 
-#### DBIO.GetRowsMin(table, column, target string, min int) [][]string  
-Returns rows of target column(s) where column is greater than or equal to key.  
-
-#### DBIO.GetMax(table, column string) int  
-Returns maximum number from a given column.  
-
-#### DBIO.CountRows(table string) int  
-Returns number of rows from a table.  
-
-#### DBIO.Count(table, column, op, key, target string, distinct bool) int {
-Returns count of entries from target column(s) in table where key relates to column via op (>=/=/...; ie. column >= 7).  
-Returns total if distinct is false; returns number of unique entries if distinct is true.  
-Give operator, key, and target as emtpy strings to count without evaluating.  
-
-### Updating and deleting  
-
-#### DBIO.UpdateColumns(table, column string, values map[string]map[string][]string) bool 
-Updates columns (specified as outer map key) in table where column == inner map key with map values. 
-Returns true if successful.  
-
-#### DBIO.UpdateRow(table, column, value, target, op, key string) bool  
-Updates single column in table, where target relates to key via operator. Returns true if successful.  
-
-#### DBIO.DeleteRow(table, column, values []string)  
-Deletes rows from database where column value is in values slice.  
-
-#### DBIO.DeleteRow(table, column, value string)  
-Deletes single row from database where column name == given value.  
-
-#### DBIO.TruncateTable(table string)  
-Clears all table contents (for re-creating summary tables....).  
