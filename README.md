@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/icwells/dbIO.svg?branch=master)](https://travis-ci.com/icwells/dbIO)
+[![GoDoc](https://godoc.org/github.com/icwells/dbIO?status.svg)](https://godoc.org/github.com/icwells/dbIO)
 
 # dbIO is a lightweight, straightforward MySQL interface written in Go.  
 These scripts are still under developement, but are available for use.  
