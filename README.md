@@ -34,7 +34,7 @@ dbIO uses iotools to read in database schema template file.
 
 ## Usage  
 dbIO stores relevant connection in a DBIO struct which is returned by the Connect function. Below are some examples of usage. 
-See the GoDocs page for a comprehensive list.  
+See the GoDoc page for a comprehensive list.  
 
 ### Connect and the DBIO struct  
 	dbIO.Connect(host, database, user, password string) *DBIO  

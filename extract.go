@@ -74,7 +74,7 @@ func toSlice(rows *sql.Rows) [][]string {
 	pointers := make([]interface{}, count)
 	for rows.Next() {
 		var r []string
-		for i, _ := range columns {
+		for i := range columns {
 			pointers[i] = &values[i]
 		}
 		// Maps items to values via pointers

@@ -130,7 +130,7 @@ func (d *DBIO) columnMap(rows *sql.Rows) {
 	values := make([]interface{}, count)
 	pointers := make([]interface{}, count)
 	for rows.Next() {
-		for i, _ := range columns {
+		for i := range columns {
 			pointers[i] = &values[i]
 		}
 		// Maps items to values via pointers

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/Songmu/prompter"
+	// MySQL driver is required in sql package
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"os"
@@ -19,11 +20,11 @@ type DBIO struct {
 	DB *sql.DB
 	// Host is the host IP.
 	Host string
-	// Databse stores the name of the database.
+	// Database stores the name of the database.
 	Database string
 	// User is the MySQL user name used in this session.
 	User string
-	// Password stoers the user's password. It is not secure, so be careful how you use it.
+	// Password stores the user's password. It is not secure, so be careful how you use it.
 	Password string
 	// Starttime is the time point after the password is given.
 	Starttime time.Time
