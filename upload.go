@@ -13,17 +13,26 @@ import (
 	"unicode/utf8"
 )
 
-// UpdateDB adds new rows to table. Values must be formatted using FormatMap or FormatSlice.
-func (d *DBIO) UpdateDB(table, values string, l int) int {
-	cmd, err := d.DB.Prepare(fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, d.Columns[table], values))
+// Insert executes the given INSERT command
+func (d *DBIO) Insert(table, command string) error {
+	var err error
+	cmd, err := d.DB.Prepare(command)
 	if err != nil {
 		d.logger.Printf("[Error] Formatting command for upload to %s: %v\n", table, err)
-		return 0
 	}
 	_, err = cmd.Exec()
 	cmd.Close()
 	if err != nil {
 		d.logger.Printf("[Error] Uploading to %s: %v\n", table, err)
+	}
+	return err
+}
+
+// UpdateDB adds new rows to table. Values must be formatted using FormatMap or FormatSlice.
+func (d *DBIO) UpdateDB(table, values string, l int) int {
+	cmd := fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, d.Columns[table], values)
+	err := d.Insert(table, cmd)
+	if err != nil {
 		return 0
 	}
 	fmt.Printf("\tUploaded %d rows to %s.\n", l, table)
