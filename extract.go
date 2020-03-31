@@ -143,6 +143,12 @@ func (d *DBIO) EvaluateRows(table, column, op, key, target string) [][]string {
 	return d.Execute(cmd)
 }
 
+// ColumnContains returns a 2D string slice from table if value is in column.
+func (d *DBIO) ColumnContains(table, column, value, target string) [][]string {
+	cmd := fmt.Sprintf("SELECT %s FROM %s WHERE INSTR(%s.%s, '%s') > 0;", target, table, table, column, value)
+	return d.Execute(cmd)
+}
+
 // GetColumnInt returns a slice of all entries in column of integers.
 func (d *DBIO) GetColumnInt(table, column string) []int {
 	var col []int
