@@ -45,7 +45,7 @@ func TestFormatMap(t *testing.T) {
 	}
 	actual, aclen := FormatMap(values)
 	if aclen != exlen {
-		t.Errorf("Actual length from map %s is not equal to expected: %s", string(aclen), string(exlen))
+		t.Errorf("Actual length from map %d is not equal to expected: %d", aclen, exlen)
 	}
 	// Compare individual elements to account for random order of map
 	a := strings.Split(actual, "),(")
@@ -78,7 +78,7 @@ func TestFormatSlice(t *testing.T) {
 	}
 	actual, aclen := FormatSlice(values)
 	if aclen != exlen {
-		t.Errorf("Actual length from slice %s is not equal to expected: %s", string(aclen), string(exlen))
+		t.Errorf("Actual length from slice %d is not equal to expected: %d", aclen, exlen)
 	} else if actual != expected {
 		t.Errorf("Actual string from slice %s is not equal to expected: %s", actual, expected)
 	}

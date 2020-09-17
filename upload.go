@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -24,6 +25,49 @@ func (d *DBIO) Insert(table, command string) error {
 	cmd.Close()
 	if err != nil {
 		d.logger.Printf("[Error] Uploading to %s: %v\n", table, err)
+	}
+	return err
+}
+
+func getDenominator(list [][]string) int {
+	// Returns denominator for subsetting upload slice (size in bytes / 16Mb)
+	max := 10000000.0
+	size := 0
+	for _, i := range list {
+		for _, j := range i {
+			size += len([]byte(j))
+		}
+	}
+	return int(math.Ceil(float64(size*8) / max))
+}
+
+// UploadSlice formats two-dimensional string slice for upload to database and splits uploads into chunks if it exceeds SQL size limit.
+func (d *DBIO) UploadSlice(table string, values [][]string) error {
+	var err error
+	l := len(values)
+	if l > 0 {
+		den := getDenominator(values)
+		// Upload in chunks
+		idx := l / den
+		ind := 0
+		for i := 0; i < den; i++ {
+			var end int
+			if ind+idx > l {
+				// Get last less than idx rows
+				end = l
+			} else {
+				end = ind + idx
+			}
+			vals, _ := FormatSlice(values[ind:end])
+			err = d.Insert(table, fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, d.Columns[table], vals))
+			if err == nil {
+				fmt.Printf("\r\tUploaded %d of %d rows to %s.", end, l, table)
+			} else {
+				break
+			}
+			ind = ind + idx
+		}
+		fmt.Println()
 	}
 	return err
 }
