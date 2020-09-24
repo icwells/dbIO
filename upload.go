@@ -44,28 +44,25 @@ func getDenominator(list [][]string) int {
 // UploadSlice formats two-dimensional string slice for upload to database and splits uploads into chunks if it exceeds SQL size limit.
 func (d *DBIO) UploadSlice(table string, values [][]string) error {
 	var err error
-	l := len(values)
-	if l > 0 {
-		den := getDenominator(values)
+	if len(values) > 0 {
 		// Upload in chunks
-		idx := l / den
-		ind := 0
-		for i := 0; i < den; i++ {
-			var end int
-			if ind+idx > l {
+		idx := len(values) / getDenominator(values)
+		var start, end int
+		for start < len(values)-idx {
+			// Advance indeces
+			start += idx
+			end = start + idx
+			if end > len(values) {
 				// Get last less than idx rows
-				end = l
-			} else {
-				end = ind + idx
+				end = len(values)
 			}
-			vals, _ := FormatSlice(values[ind:end])
+			vals, _ := FormatSlice(values[start:end])
 			err = d.Insert(table, fmt.Sprintf("INSERT INTO %s (%s) VALUES %s;", table, d.Columns[table], vals))
 			if err == nil {
-				fmt.Printf("\r\tUploaded %d of %d rows to %s.", end, l, table)
+				fmt.Printf("\r\tUploaded %d of %d rows to %s.", end, len(values), table)
 			} else {
 				break
 			}
-			ind = ind + idx
 		}
 		fmt.Println()
 	}

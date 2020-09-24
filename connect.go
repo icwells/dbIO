@@ -92,7 +92,7 @@ func ReplaceDatabase(host, database, user, password string) *DBIO {
 			d.create(database)
 		}
 	}
-	// Return dcnneciton to given database
+	// Return conneciton to given database
 	d.Database = database
 	d.connect()
 	return d
