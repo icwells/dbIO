@@ -48,9 +48,8 @@ func (d *DBIO) UploadSlice(table string, values [][]string) error {
 		// Upload in chunks
 		idx := len(values) / getDenominator(values)
 		var start, end int
-		for start < len(values)-idx {
+		for start < len(values) {
 			// Advance indeces
-			start += idx
 			end = start + idx
 			if end > len(values) {
 				// Get last less than idx rows
@@ -63,6 +62,7 @@ func (d *DBIO) UploadSlice(table string, values [][]string) error {
 			} else {
 				break
 			}
+			start += idx
 		}
 		fmt.Println()
 	}
