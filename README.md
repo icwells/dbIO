@@ -72,14 +72,22 @@ It will return true if a connection was successfully established, or false if it
 #### DBIO.NewTables(infile string)  
 This command will read a text file of tables, columns, and types and initialize new tables if they do not already exist.  
 
-The input file should be in the following format:  
+The input file should contain a series of valid sql CREATE TABLE commands, with each command seperated by a single space and
+ ending with a semicolon (;). E.G.:
 
-	# TableName  
-	ID INT PRIMARY KEY  
-	Name TEXT 
+'''
+CREATE TABLE IF NOT EXISTS Accounts (
+	account_id INT PRIMARY KEY,
+	Account TEXT,
+	submitter_name TEXT;
+	INDEX (account_id)
+);
 
-Table names should be preceded with a pound sign. Column names should be the first element of the line and must be 
-followed by the column type. Any valid MySQL key words for column creation (UNIQUE, PRIMARY KEY, ...) may follow the type.  
+CREATE TABLE IF NOT EXISTS Update_time (
+	update_number INT PRIMARY KEY AUTO_INCREMENT,
+	Time TEXT
+);
+'''
 
 #### DBIO.ReadColumns(infile string)  
 Reads in tables and columns from input file (see above) and stores in DBIO.Columns. The column types and 

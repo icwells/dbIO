@@ -206,8 +206,8 @@ WHERE table_schema = DATABASE() GROUP BY table_name ORDER BY table_name;`
 }
 
 // ReadColumns builds a map of column statements with types from infile. See README for infile formatting.
-func (d *DBIO) ReadColumns(infile string) {
-	d.Columns = make(map[string]string)
+func (d *DBIO) ReadColumns(infile string) []string {
+	var ret []string
 	var table string
 	f, err := os.Open(infile)
 	if err != nil {
@@ -216,33 +216,34 @@ func (d *DBIO) ReadColumns(infile string) {
 	defer f.Close()
 	input := bufio.NewScanner(f)
 	for input.Scan() {
-		line := string(input.Text())
-		if len(line) >= 3 {
-			if line[0] == '#' {
-				// Get table names
-				table = strings.TrimSpace(line[1:])
-			} else {
-				// Get columns for given table
-				col := strings.TrimSpace(line)
-				if _, ex := d.Columns[table]; ex == true {
-					d.Columns[table] = d.Columns[table] + ", " + col
-				} else {
-					d.Columns[table] = col
-				}
+		line := strings.TrimSpace(string(input.Text()))
+		if len(line) >= 1 {
+			table += line + " "
+			if strings.Contains(line, ";") {
+				ret = append(ret, strings.TrimSpace(table))
+				table = ""
 			}
 		}
 	}
+	return ret
 }
 
-// NewTables initializes new tables form infile. See README for infile formatting.
+// NewTables executes new table commands from infile. See README for infile formatting.
 func (d *DBIO) NewTables(infile string) {
 	fmt.Println("\n\tInitializing new tables...")
-	d.ReadColumns(infile)
-	for k, v := range d.Columns {
-		cmd := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s(%s);", k, v)
-		_, err := d.DB.Exec(cmd)
+	for _, i := range d.ReadColumns(infile) {
+		// Table name is last word before (
+		table := i[:strings.Index(i, " (")]
+		table = table[strings.LastIndex(table, " "):]
+		cmd, err := d.DB.Prepare(i)
 		if err != nil {
-			d.logger.Fatalf("[Error] Creating table %s. %v\n\n", k, err)
+			d.logger.Fatalf("[Error] Formatting create table command for %s. %v\n\n", table, err)
 		}
+		_, err = cmd.Exec()
+		if err != nil {
+			d.logger.Println(i)
+			d.logger.Fatalf("[Error] Creating table %s. %v\n\n", table, err)
+		} else {d.logger.Println(table)}
 	}
+	d.GetTableColumns()
 }
