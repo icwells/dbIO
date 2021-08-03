@@ -26,7 +26,6 @@ func (d *DBIO) getHost() string {
 	// Returns formatted host name
 	host := d.Host[:strings.Index(d.Host, ":")]
 	host = host[strings.Index(host, "(") + 1:]
-	d.logger.Println(host)
 	return fmt.Sprintf("-h%s", host)
 }
 
