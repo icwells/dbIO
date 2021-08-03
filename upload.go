@@ -243,7 +243,9 @@ func (d *DBIO) NewTables(infile string) {
 		if err != nil {
 			d.logger.Println(i)
 			d.logger.Fatalf("[Error] Creating table %s. %v\n\n", table, err)
-		} else {d.logger.Println(table)}
+		} else {
+			d.logger.Println(table)
+		}
 	}
 	d.GetTableColumns()
 }
