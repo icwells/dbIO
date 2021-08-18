@@ -233,18 +233,16 @@ func (d *DBIO) NewTables(infile string) {
 	fmt.Println("\n\tInitializing new tables...")
 	for _, i := range d.ReadColumns(infile) {
 		// Table name is last word before (
-		table := i[:strings.Index(i, " (")]
-		table = table[strings.LastIndex(table, " "):]
 		cmd, err := d.DB.Prepare(i)
 		if err != nil {
-			d.logger.Fatalf("[Error] Formatting create table command for %s. %v\n\n", table, err)
+			d.logger.Fatalf("[Error] Formatting command %s. %v\n\n", i, err)
 		}
 		_, err = cmd.Exec()
 		if err != nil {
 			d.logger.Println(i)
-			d.logger.Fatalf("[Error] Creating table %s. %v\n\n", table, err)
+			d.logger.Fatalf("[Error] Executing %s. %v\n\n", i, err)
 		} else {
-			d.logger.Println(table)
+			d.logger.Printf("Successfully executed %s...\n", i[:20])
 		}
 	}
 	d.GetTableColumns()
