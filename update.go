@@ -8,6 +8,21 @@ import (
 	"time"
 )
 
+// OptimizeTables calls optimize on all tables in the database.
+func (d *DBIO) OptimizeTables() {
+	for k := range d.Columns {
+		cmd, err := d.DB.Prepare(fmt.Sprintf("OPTIMIZE TABLE %s;", k))
+		if err != nil {
+			d.logger.Printf("[Error] Formatting command to optimize table %s: %v\n", k, err)
+		} else {
+			_, err = cmd.Exec()
+			if err != nil {
+				d.logger.Printf("[Error] Optimizing table %s: %v\n", k, err)
+			}
+		}
+	}
+}
+
 // TruncateTable clears all content from the given table.
 func (d *DBIO) TruncateTable(table string) {
 	cmd, err := d.DB.Prepare(fmt.Sprintf("TRUNCATE TABLE %s;", table))

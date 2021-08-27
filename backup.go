@@ -25,7 +25,7 @@ func (d *DBIO) getBackupFile(outdir string) string {
 func (d *DBIO) getHost() string {
 	// Returns formatted host name
 	host := d.Host[:strings.Index(d.Host, ":")]
-	host = host[strings.Index(host, "(") + 1:]
+	host = host[strings.Index(host, "(")+1:]
 	return fmt.Sprintf("-h%s", host)
 }
 
