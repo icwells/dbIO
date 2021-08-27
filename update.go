@@ -15,10 +15,7 @@ func (d *DBIO) OptimizeTables() {
 		if err != nil {
 			d.logger.Printf("[Error] Formatting command to optimize table %s: %v\n", k, err)
 		} else {
-			_, err = cmd.Exec()
-			if err != nil {
-				d.logger.Printf("[Error] Optimizing table %s: %v\n", k, err)
-			}
+			cmd.Exec()
 		}
 	}
 }
