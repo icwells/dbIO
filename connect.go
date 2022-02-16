@@ -3,6 +3,7 @@
 package dbIO
 
 import (
+	"bufio"
 	"database/sql"
 	"fmt"
 	"github.com/Songmu/prompter"
@@ -101,7 +102,13 @@ func ReplaceDatabase(host, database, user, password string) *DBIO {
 // Connects to database
 func (d *DBIO) connect() error {
 	var err error
-	if d.User != "guest" && len(d.Password) < 1 {
+	if d.User == "" {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("\n\tEnter MySQL user name: ")
+		text, _ := reader.ReadString('\n')
+		d.User = strings.TrimSpace(text)
+	}
+	if d.User != "guest" && d.Password == "" {
 		// Prompt for password
 		d.Password = prompter.Password("\n\tEnter MySQL password")
 	}
