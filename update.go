@@ -4,6 +4,7 @@ package dbIO
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -104,7 +105,13 @@ func (d *DBIO) UpdateColumns(table, idcol string, values map[string]map[string]s
 
 // UpdateRow updates a single column in the given table and returns true if successful.
 func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
-	return d.update(table, fmt.Sprintf("UPDATE %s SET %s = '%s' WHERE %s %s '%s';", table, target, value, column, op, key))
+	if _, err := strconv.ParseFloat(value, 64); err != nil {
+		value = fmt.Sprintf("'%s'", value)
+	}
+	if _, err := strconv.ParseFloat(key, 64); err != nil {
+		value = fmt.Sprintf("'%s'", key)
+	}
+	return d.update(table, fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, target, value, column, op, key))
 }
 
 // Performs given deletion command
