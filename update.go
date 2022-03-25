@@ -109,7 +109,7 @@ func (d *DBIO) UpdateRow(table, target, value, column, op, key string) bool {
 		value = fmt.Sprintf("'%s'", value)
 	}
 	if _, err := strconv.ParseFloat(key, 64); err != nil {
-		value = fmt.Sprintf("'%s'", key)
+		key = fmt.Sprintf("'%s'", key)
 	}
 	return d.update(table, fmt.Sprintf("UPDATE %s SET %s = %s WHERE %s %s %s;", table, target, value, column, op, key))
 }
